@@ -28,7 +28,7 @@ public class Drawing extends JPanel{
         
         //Drawing board
         for(int y = 0; y < 8; y++){
-            for(int x = y % 2; x < 8; x+=2){
+            for(int x = ((y % 2)-1)/-1; x < 8; x+=2){
                 g2d.setColor(Color.black);
                 g2d.fill(new Rectangle(x*tileSize,y*tileSize,tileSize,tileSize));
             }

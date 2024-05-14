@@ -9,7 +9,7 @@ public class Canvas extends JFrame {
     Canvas(Drawing drawing){
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(canvasWidth,canvasHeight);
-        this.setBackground(Color.gray);
+        this.setBackground(Color.black);
         this.add(drawing);
         this.setResizable(false);
         this.setVisible(true);

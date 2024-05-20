@@ -25,7 +25,7 @@ public class Mouse_Input implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("click");
+        drawing.MouseClicked(e.getX(),e.getY());
     }
 
     @Override

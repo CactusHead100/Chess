@@ -1,10 +1,10 @@
 package Main;
 public class Initialize {
     private Canvas canvas;
-    private Game drawing;
+    private Game game;
     public Initialize(){
-    drawing = new Game();
-    canvas = new Canvas(drawing);
-    drawing.requestFocus();
+    game = new Game();
+    canvas = new Canvas(game);
+    game.requestFocus();
     }
 }

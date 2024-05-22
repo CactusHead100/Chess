@@ -10,32 +10,57 @@ import javax.swing.JPanel;
 
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
-    public static int tileSize = 80;
+    public static int tileSize = 40;
+    public final int boardSize = 16;
     int mouseX;
     int mouseY;
-    Board tile = new Board(1, 1, Color.red);
-    Pieces pieces[][] /* = new Pieces[8][8];*/ = {{new Pieces(0,0,4,false),new Pieces(1,0,2,false),new Pieces(2,0,3,false),new Pieces(3,0,5,false),new Pieces(4,0,6,false),new Pieces(5,0,3,false),new Pieces(6,0,2,false),new Pieces(7,0,4,false)},
-                         {new Pieces(0,1,1,false),new Pieces(1,1,1,false),new Pieces(2,1,1,false),new Pieces(3,1,1,false),new Pieces(4,1,1,false),new Pieces(5,1,1,false),new Pieces(6,1,1,false),new Pieces(7,1,1,false)},
-                         {new Pieces(0,2,0,false),new Pieces(1,2,0,false),new Pieces(2,2,0,false),new Pieces(3,2,0,false),new Pieces(4,2,0,false),new Pieces(5,2,0,false),new Pieces(6,2,0,false),new Pieces(7,2,0,false)},
-                         {new Pieces(0,3,0,false),new Pieces(1,3,0,false),new Pieces(2,3,0,false),new Pieces(3,3,0,false),new Pieces(4,3,0,false),new Pieces(5,3,0,false),new Pieces(6,3,0,false),new Pieces(7,3,0,false)},
-                         {new Pieces(0,4,0,false),new Pieces(1,4,0,false),new Pieces(2,4,0,false),new Pieces(3,4,0,false),new Pieces(4,4,0,false),new Pieces(5,4,0,false),new Pieces(6,4,0,false),new Pieces(7,4,0,false)},
-                         {new Pieces(0,5,0,false),new Pieces(1,5,0,false),new Pieces(2,5,0,false),new Pieces(3,5,0,false),new Pieces(4,5,0,false),new Pieces(5,5,0,false),new Pieces(6,5,0,false),new Pieces(7,5,0,false)},
-                         {new Pieces(0,6,1,true),new Pieces(1,6,1,true),new Pieces(2,1,1,false),new Pieces(3,6,1,true),new Pieces(4,6,1,true),new Pieces(5,6,1,true),new Pieces(6,6,1,true),new Pieces(7,6,1,true)},
-                         {new Pieces(0,7,4,true),new Pieces(1,7,2,true),new Pieces(2,0,3,false),new Pieces(3,7,5,true),new Pieces(4,7,6,true),new Pieces(5,7,3,true),new Pieces(6,7,2,true),new Pieces(7,7,4,true)},};
-    
+    Board tiles[][] = new Board[boardSize][boardSize];
+    Pieces pieces[][] = new Pieces[boardSize][boardSize];
+
     public Game(){
         addMouseListener(mouse_Input);
         addMouseMotionListener(mouse_Input);
+        CreateTiles();
         CreatePieces();
     }
-    
+
+    //Function creates Board objects into the 2D array tile
+    private void CreateTiles(){
+        for(int y = 0; y < boardSize; y++){
+            for(int x = 0; x < boardSize; x++){
+                if(((y%2 == 0)&&(x%2==0))||((x%2==1)&&(y%2 == 1))){
+                    tiles[y][x] = new Board(x*tileSize, y*tileSize, Color.white);
+                }else{
+                    tiles[y][x] = new Board(x*tileSize, y*tileSize, Color.black);
+                }
+            }
+        }
+    }
+
     private void CreatePieces() {
-        
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                if((x == 0)||(x == 7)){
+                    switch(y){
+                        case 0:
+                            pieces[y][x] = new Pieces((boardSize/2-4+x)*tileSize, (boardSize/2-4+y)*tileSize, 4, false);
+                        break;
+                        case 7:
+                            pieces[y][x] = new Pieces((boardSize/2-4+x)*tileSize, (boardSize/2-4+y)*tileSize, 4, true);
+                            System.out.println("drawing");
+                        break;
+                    }
+                    
+                }//else if((y == 0)&&((x == 1)||(x == 6))){
+                   // pieces[y][x] = new Pieces(x, y, 2, getFocusTraversalKeysEnabled());
+                //}
+            }
+        }
     }
 
     public void MouseClicked(int mouseXpos,int mouseYpos){
-        mouseX = mouseXpos/80;
-        mouseY = mouseYpos/80;
+        mouseX = mouseXpos/tileSize;
+        mouseY = mouseYpos/tileSize;
         System.out.println(mouseX+"&"+mouseY);
         repaint();
     }
@@ -43,17 +68,23 @@ public class Game extends JPanel{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        //Drawing board
-        for(int y = 0; y < 8; y++){
-            for(int x = ((y % 2)-1)/-1; x < 8; x+=2){
-                g2d.setColor(Color.black);
-                g2d.fill(new Rectangle(x*tileSize,y*tileSize,tileSize,tileSize));
+        //Draws board based off infomation in said Board objuect in tiles 2D array
+        g2d.clearRect(0,0,boardSize*tileSize,boardSize*tileSize);
+        for(int y = 0; y < boardSize; y++){
+            for(int x = 0; x < boardSize; x++){
+                g2d.setColor(tiles[y][x].colour);
+                g2d.fill(tiles[y][x].tile);
             }
         } 
-        g2d.setColor(Color.blue);
-        g2d.fill(pieces[7][4].rectangle);
-        g2d.setColor(tile.colour);
-        System.out.println(tile.colour);
-        g2d.fill(tile.tile);
+        for(int y = 0; y < boardSize; y++){
+            for(int x = 0; x < boardSize; x++){
+                g2d.setColor(Color.blue);
+                try {
+                    g2d.fill(pieces[y][x].rectangle);
+                } catch (Exception e) {
+                    //System.out.println("blank square");
+                }
+            }
+        } 
     }
 }

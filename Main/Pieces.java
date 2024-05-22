@@ -14,6 +14,6 @@ public class Pieces {
         this.whitePiece = whitePiece;
         this.x = x;
         this.y = y;
-        rectangle = new Rectangle.Double(x*Game.tileSize,y*Game.tileSize,80,80);
+        rectangle = new Rectangle.Double(x,y,Game.tileSize,Game.tileSize);
     }
 }

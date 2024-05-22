@@ -7,9 +7,9 @@ import java.awt.event.MouseMotionListener;
 
 public class Mouse_Input implements MouseListener, MouseMotionListener{
 
-    private Drawing drawing;
+    private Game drawing;
 
-    public Mouse_Input(Drawing drawing) {
+    public Mouse_Input(Game drawing) {
         this.drawing = drawing;
     }
 

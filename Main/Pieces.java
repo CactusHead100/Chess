@@ -8,11 +8,12 @@ public class Pieces {
     boolean whitePiece;
     int x;
     int y;
-    Rectangle2D.Double rectangle = new Rectangle.Double(0,0,80,80);
+    Rectangle2D.Double rectangle;
     Pieces(int x,int y,int pieceType, boolean whitePiece){
         this.pieceType = pieceType;
         this.whitePiece = whitePiece;
         this.x = x;
         this.y = y;
+        rectangle = new Rectangle.Double(x*Game.tileSize,y*Game.tileSize,80,80);
     }
 }

@@ -6,7 +6,7 @@ import javax.swing.*;
 public class Canvas extends JFrame {
     int canvasWidth = 652;
     int canvasHeight = 675;
-    Canvas(Drawing drawing){
+    Canvas(Game drawing){
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(canvasWidth,canvasHeight);
         this.add(drawing);

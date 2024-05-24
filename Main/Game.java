@@ -8,14 +8,16 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
+import Main.Pieces.piecEnum;
+
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
     public static int tileSize = 40;
-    public final int boardSize = 16;
+    public static final int boardSize = 16;
     int mouseX;
     int mouseY;
-    Board tiles[][] = new Board[boardSize][boardSize];
-    Pieces pieces[][] = new Pieces[boardSize][boardSize];
+    public Board tiles[][] = new Board[boardSize][boardSize];
+    public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
 
     public Game(){
         addMouseListener(mouse_Input);
@@ -38,30 +40,54 @@ public class Game extends JPanel{
     }
 
     private void CreatePieces() {
-        for(int y = 0; y < 8; y++){
-            for(int x = 0; x < 8; x++){
-                if((x == 0)||(x == 7)){
-                    switch(y){
-                        case 0:
-                            pieces[y][x] = new Pieces((boardSize/2-4+x)*tileSize, (boardSize/2-4+y)*tileSize, 4, false);
-                        break;
-                        case 7:
-                            pieces[y][x] = new Pieces((boardSize/2-4+x)*tileSize, (boardSize/2-4+y)*tileSize, 4, true);
-                            System.out.println("drawing");
-                        break;
-                    }
+        for(int y = 0; y < boardSize; y++){
+            for(int x = 0; x < boardSize; x++){
+                switch (x) {
+                    case boardSize/2-4:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, false);
+                            break;
+                            case boardSize/2+4:
+                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, true);
+                            break;
+                        }
+                    break;
+                    case boardSize/2+4:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, false);
+                            break;
+                            case boardSize/2+4:
+                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, true);
+                            break;
+                        }
+                    break;
+                }
+                    
                     
                 }//else if((y == 0)&&((x == 1)||(x == 6))){
                    // pieces[y][x] = new Pieces(x, y, 2, getFocusTraversalKeysEnabled());
                 //}
             }
         }
-    }
 
     public void MouseClicked(int mouseXpos,int mouseYpos){
         mouseX = mouseXpos/tileSize;
         mouseY = mouseYpos/tileSize;
-        System.out.println(mouseX+"&"+mouseY);
+        System.out.println(mouseY);
+        try{
+            if(pieces[mouseY][mouseX].getAvailableMoves() == 0){
+                try{
+                    tiles[mouseY][mouseX - 1].colour = Color.red;
+                }catch (Exception e) {
+                    System.out.println("fail");
+                }
+            }
+        }catch (Exception e) {
+            System.out.println("fail");
+        }
+        
         repaint();
     }
 
@@ -77,14 +103,15 @@ public class Game extends JPanel{
             }
         } 
         for(int y = 0; y < boardSize; y++){
-            for(int x = 0; x < boardSize; x++){
+            for(int x = 0; x < boardSize; x++){                
                 g2d.setColor(Color.blue);
                 try {
                     g2d.fill(pieces[y][x].rectangle);
+                    System.out.println("x:"+x+"y:"+y);
                 } catch (Exception e) {
-                    //System.out.println("blank square");
                 }
             }
         } 
     }
 }
+

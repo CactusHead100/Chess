@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.swing.JPanel;
 
@@ -46,46 +48,44 @@ public class Game extends JPanel{
                     case boardSize/2-4:
                         switch(y){
                             case boardSize/2-4:
-                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, false);
+                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, false);
                             break;
                             case boardSize/2+3:
-                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, true);
+                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, true);
                             break;
                         }
                     break;
                     case boardSize/2+3:
                         switch(y){
                             case boardSize/2-4:
-                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, false);
+                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, false);
                             break;
                             case boardSize/2+3:
-                                pieces[y][x] = new Pieces((x)*tileSize, (y)*tileSize, piecEnum.rook, true);
+                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, true);
                             break;
                         }
                     break;
                 }
                     
                     
-                }//else if((y == 0)&&((x == 1)||(x == 6))){
-                   // pieces[y][x] = new Pieces(x, y, 2, getFocusTraversalKeysEnabled());
-                //}
+                }
             }
         }
 
     public void MouseClicked(int mouseXpos,int mouseYpos){
         mouseX = mouseXpos/tileSize;
         mouseY = mouseYpos/tileSize;
-        System.out.println(mouseY);
         try{
-            if(pieces[mouseY][mouseX].getAvailableMoves() == 0){
-                try{
-                    tiles[mouseY][mouseX - 1].colour = Color.red;
-                }catch (Exception e) {
-                    System.out.println("fail");
-                }
+            @SuppressWarnings("unchecked")
+            Dictionary<Integer, Double> possibleMoves = pieces[mouseY][mouseX].getAvailableMoves();
+            System.out.println(possibleMoves.toString());
+            for(int i = 0; i < possibleMoves.size(); i++){
+                int x = (int)Math.floor(possibleMoves.get(i));
+                int y = (int)(Math.round((possibleMoves.get(i)-x)*100));
+                tiles[y][x].colour = Color.red;
             }
         }catch (Exception e) {
-            System.out.println("fail");
+            System.out.println(e.getMessage());
         }
         
         repaint();
@@ -107,7 +107,6 @@ public class Game extends JPanel{
                 g2d.setColor(Color.blue);
                 try {
                     g2d.fill(pieces[y][x].rectangle);
-                    System.out.println("x:"+x+"y:"+y);
                 } catch (Exception e) {
                 }
             }

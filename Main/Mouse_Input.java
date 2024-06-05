@@ -26,10 +26,8 @@ public class Mouse_Input implements MouseListener, MouseMotionListener{
     public void mouseClicked(MouseEvent e) {
         if(firstClick){
             game.MouseClicked(e.getX(),e.getY());
-            firstClick = false;
         }else{
             game.MouseReleased(e.getX(),e.getY());
-            firstClick = true;
         }
 
     }

@@ -31,15 +31,17 @@ public class Pieces {
     public Dictionary getAvailableMoves(){
         Dictionary<Integer, Double> possibleMoves = new Hashtable<>();
         if(this.pieceType == piecEnum.rook){
+            System.out.println(this.whitePiece);
             for(int m = 0; m < Game.boardSize*2;){
                 for(int l = this.x-1; l >= 0; l--){
                     try {
-                        if(Game.pieces[this.y][l].whitePiece == this.whitePiece){
+                        if(Game.pieces[this.y][l].whitePiece != this.whitePiece){
                             if(this.y < 10){
                                 possibleMoves.put(m,Double.parseDouble(l+".0"+this.y));
                             }else{
                                 possibleMoves.put(m,Double.parseDouble(l+"."+this.y));
                             }  
+                            m++;
                         }
                         l = 0;
                     }catch (Exception e) {
@@ -53,13 +55,14 @@ public class Pieces {
                 }
                 for(int r = this.x+1; r < Game.boardSize; r++){
                     try {
-                        if(Game.pieces[this.y][r].whitePiece == this.whitePiece){
+                        if(Game.pieces[this.y][r].whitePiece != this.whitePiece){
                             if(this.y < 10){
                                 possibleMoves.put(m,Double.parseDouble(r+".0"+this.y));
                             }else{
                                 possibleMoves.put(m,Double.parseDouble(r+"."+this.y));
                                 
                             }
+                            m++;
                         }
                         r = Game.boardSize;
                     }catch (Exception e) {
@@ -74,13 +77,14 @@ public class Pieces {
                 }
                 for(int u = this.y-1; u >= 0; u--){
                     try {
-                        if(Game.pieces[u][this.x].whitePiece == this.whitePiece){
+                        if(Game.pieces[u][this.x].whitePiece != this.whitePiece){
                             if(u < 10){
                                 possibleMoves.put(m,Double.parseDouble(this.x+".0"+u));
                             }else{
                                 possibleMoves.put(m,Double.parseDouble(this.x+"."+u));
                                 
                             }
+                            m++;
                         }
                         u = 0;
                     }catch (Exception e) {
@@ -95,13 +99,14 @@ public class Pieces {
                 }
                 for(int d = this.y+1; d < Game.boardSize; d++){
                     try {
-                        if(Game.pieces[d][this.x].whitePiece == this.whitePiece){
+                        if(Game.pieces[d][this.x].whitePiece != this.whitePiece){
                             if(d < 10){
                                 possibleMoves.put(m,Double.parseDouble(this.x+".0"+d));
                             }else{
                                 possibleMoves.put(m,Double.parseDouble(this.x+"."+d));
                                 
                             } 
+                            m++;
                         }
                         d = Game.boardSize;
                     }catch (Exception e) {

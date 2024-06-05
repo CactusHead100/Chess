@@ -87,11 +87,11 @@ public class Game extends JPanel{
                 int x = (int)Math.floor(possibleMoves.get(i));
                 int y = (int)(Math.round((possibleMoves.get(i)-x)*100));
                 tiles[y][x].colour = Color.red;
+                mouse_Input.firstClick = false;
             }
         }catch (Exception e) {
-            System.out.println(e.getMessage());
         }
-        
+
         repaint();
     }
 
@@ -100,8 +100,8 @@ public class Game extends JPanel{
         mouseY = mouseYpos/tileSize;
         if(tiles[mouseY][mouseX].colour== Color.RED){
             pieces[movingPiece[1]][movingPiece[0]].movePiece(mouseX,mouseY);
-            repaint();
         }
+        mouse_Input.firstClick = true;
         CreateTiles();
         repaint();
     }

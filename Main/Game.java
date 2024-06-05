@@ -20,6 +20,7 @@ public class Game extends JPanel{
     int mouseY;
     public Board tiles[][] = new Board[boardSize][boardSize];
     public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
+    private int[] movingPiece = new int[2];
 
     public Game(){
         addMouseListener(mouse_Input);
@@ -75,10 +76,13 @@ public class Game extends JPanel{
     public void MouseClicked(int mouseXpos,int mouseYpos){
         mouseX = mouseXpos/tileSize;
         mouseY = mouseYpos/tileSize;
+        movingPiece[0] = mouseX;
+        movingPiece[1] = mouseY;
+
         try{
             @SuppressWarnings("unchecked")
             Dictionary<Integer, Double> possibleMoves = pieces[mouseY][mouseX].getAvailableMoves();
-            System.out.println(possibleMoves.toString());
+            System.out.println(possibleMoves.toString()+"\n"+possibleMoves.size());
             for(int i = 0; i < possibleMoves.size(); i++){
                 int x = (int)Math.floor(possibleMoves.get(i));
                 int y = (int)(Math.round((possibleMoves.get(i)-x)*100));
@@ -88,6 +92,17 @@ public class Game extends JPanel{
             System.out.println(e.getMessage());
         }
         
+        repaint();
+    }
+
+    public void MouseReleased(int mouseXpos,int mouseYpos){
+        mouseX = mouseXpos/tileSize;
+        mouseY = mouseYpos/tileSize;
+        if(tiles[mouseY][mouseX].colour== Color.RED){
+            pieces[movingPiece[1]][movingPiece[0]].movePiece(mouseX,mouseY);
+            repaint();
+        }
+        CreateTiles();
         repaint();
     }
 

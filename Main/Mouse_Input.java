@@ -6,13 +6,12 @@ import java.awt.event.MouseMotionListener;
 
 
 public class Mouse_Input implements MouseListener, MouseMotionListener{
+    private Game game;
 
-    private Game drawing;
-
-    public Mouse_Input(Game drawing) {
-        this.drawing = drawing;
+    public Mouse_Input(Game game) {
+        this.game = game;
     }
-
+    Boolean firstClick = true;
     @Override
     public void mouseDragged(MouseEvent e) {
         
@@ -25,7 +24,14 @@ public class Mouse_Input implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        drawing.MouseClicked(e.getX(),e.getY());
+        if(firstClick){
+            game.MouseClicked(e.getX(),e.getY());
+            firstClick = false;
+        }else{
+            game.MouseReleased(e.getX(),e.getY());
+            firstClick = true;
+        }
+
     }
 
     @Override

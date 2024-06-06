@@ -11,7 +11,7 @@ public class Mouse_Input implements MouseListener, MouseMotionListener{
     public Mouse_Input(Game game) {
         this.game = game;
     }
-    Boolean firstClick = true;
+    static Boolean firstClick = true;
     @Override
     public void mouseDragged(MouseEvent e) {
         

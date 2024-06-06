@@ -14,11 +14,11 @@ import Main.Pieces.piecEnum;
 
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
-    public static int tileSize = 40;
-    public static final int boardSize = 16;
+    public static int tileSize = 80;
+    public static final int boardSize = 8;
     int mouseX;
     int mouseY;
-    public Board tiles[][] = new Board[boardSize][boardSize];
+    public static Board tiles[][] = new Board[boardSize][boardSize];
     public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
     private int[] movingPiece = new int[2];
 
@@ -66,6 +66,26 @@ public class Game extends JPanel{
                             break;
                         }
                     break;
+                    case boardSize/2-3:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, true);
+                            break;
+                        }
+                    break;
+                    case boardSize/2+2:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, true);
+                            break;
+                        }
+                    break;
                 }
                     
                     
@@ -78,20 +98,10 @@ public class Game extends JPanel{
         mouseY = mouseYpos/tileSize;
         movingPiece[0] = mouseX;
         movingPiece[1] = mouseY;
-
-        try{
-            @SuppressWarnings("unchecked")
-            Dictionary<Integer, Double> possibleMoves = pieces[mouseY][mouseX].getAvailableMoves();
-            System.out.println(possibleMoves.toString()+"\n"+possibleMoves.size());
-            for(int i = 0; i < possibleMoves.size(); i++){
-                int x = (int)Math.floor(possibleMoves.get(i));
-                int y = (int)(Math.round((possibleMoves.get(i)-x)*100));
-                tiles[y][x].colour = Color.red;
-                mouse_Input.firstClick = false;
-            }
-        }catch (Exception e) {
+        try {
+            pieces[mouseY][mouseX].getAvailableMoves();
+        } catch (Exception e) {
         }
-
         repaint();
     }
 
@@ -119,8 +129,12 @@ public class Game extends JPanel{
         } 
         for(int y = 0; y < boardSize; y++){
             for(int x = 0; x < boardSize; x++){                
-                g2d.setColor(Color.blue);
                 try {
+                    if(pieces[y][x].whitePiece){
+                        g2d.setColor(Color.blue);
+                    }else{
+                        g2d.setColor(Color.green);
+                    }
                     g2d.fill(pieces[y][x].rectangle);
                 } catch (Exception e) {
                 }

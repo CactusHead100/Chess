@@ -86,6 +86,26 @@ public class Game extends JPanel{
                             break;
                         }
                     break;
+                    case boardSize/2-2:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, true);
+                            break;
+                        }
+                    break;
+                    case boardSize/2+1:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, true);
+                            break;
+                        }
+                    break;
                 }
                     
                     

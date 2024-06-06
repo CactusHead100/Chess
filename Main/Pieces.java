@@ -36,7 +36,13 @@ public class Pieces {
                         Pathing(-1,0,this.x,this.y);
                         Pathing(0,1,this.x,this.y);
                         Pathing(0,-1,this.x,this.y);
-                    break;
+                break;
+                case bishop:
+                    Pathing(1,1,this.x,this.y);
+                    Pathing(-1,1,this.x,this.y);
+                    Pathing(1,-1,this.x,this.y);
+                    Pathing(-1,-1,this.x,this.y);
+                break;
             }
         return(true);
     }

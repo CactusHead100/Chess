@@ -43,6 +43,29 @@ public class Pieces {
                     Pathing(1,-1,this.x,this.y);
                     Pathing(-1,-1,this.x,this.y);
                 break;
+                case queen:
+                    Pathing(1,0,this.x,this.y);
+                    Pathing(-1,0,this.x,this.y);
+                    Pathing(0,1,this.x,this.y);
+                    Pathing(0,-1,this.x,this.y);
+                    Pathing(1,1,this.x,this.y);
+                    Pathing(-1,1,this.x,this.y);
+                    Pathing(1,-1,this.x,this.y);
+                    Pathing(-1,-1,this.x,this.y);
+                break;
+                case knight:
+                        Jumping(1,2, this.x, this.y);
+                        Jumping(2,1, this.x, this.y);
+                        Jumping(1,-2, this.x, this.y);
+                        Jumping(2,-1, this.x, this.y);
+                break;
+                case king:
+                        Jumping(1,1, this.x, this.y);
+                        Jumping(0,1, this.x, this.y);
+                        Jumping(1,0, this.x, this.y);
+                        Jumping(0,-1, this.x, this.y);
+                        Jumping(1,-1, this.x, this.y);
+                break;
             }
         return(true);
     }
@@ -60,5 +83,20 @@ public class Pieces {
             }
         } catch (Exception e) {
         }
+    }
+    private void Jumping(int xIncrease, int yIncrease, int xPos, int yPos){
+        try {
+            if((xPos+xIncrease<Game.boardSize)&&(xPos+xIncrease>=0)&&(yPos+yIncrease<Game.boardSize)&&(yPos+yIncrease>=0)){
+                if((Game.pieces[yPos+yIncrease][xPos+xIncrease] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease].whitePiece != this.whitePiece)){
+                    Game.tiles[yPos+yIncrease][xPos+xIncrease].colour = Color.red;
+                    Mouse_Input.firstClick = false;
+                }
+                if((Game.pieces[yPos+yIncrease][xPos+xIncrease*-1] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease*-1].whitePiece != this.whitePiece)){
+                    Game.tiles[yPos+yIncrease][xPos+xIncrease*-1].colour = Color.red;
+                    Mouse_Input.firstClick = false;
+                }
+            } 
+        } catch (Exception e) {
+        }  
     }
 }

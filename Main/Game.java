@@ -14,8 +14,8 @@ import Main.Pieces.piecEnum;
 
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
-    public static int tileSize = 80;
-    public static final int boardSize = 8;
+    public static int tileSize = 40;
+    public static final int boardSize = 16;
     int mouseX;
     int mouseY;
     public static Board tiles[][] = new Board[boardSize][boardSize];
@@ -103,6 +103,26 @@ public class Game extends JPanel{
                             break;
                             case boardSize/2+3:
                                 pieces[y][x] = new Pieces(x, y, piecEnum.bishop, true);
+                            break;
+                        }
+                    break;
+                    case boardSize/2:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.king, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.king, true);
+                            break;
+                        }
+                    break;
+                    case boardSize/2-1:
+                        switch(y){
+                            case boardSize/2-4:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.queen, false);
+                            break;
+                            case boardSize/2+3:
+                                pieces[y][x] = new Pieces(x, y, piecEnum.queen, true);
                             break;
                         }
                     break;

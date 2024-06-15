@@ -102,7 +102,7 @@ public class Game extends JPanel{
         movingPiece[0] = mouseX;
         movingPiece[1] = mouseY;
         try {
-            pieces[mouseY][mouseX].getAvailableMoves();
+            pieces[mouseY][mouseX].GetAvailableMoves();
         } catch (Exception e) {
         }
         repaint();
@@ -112,7 +112,7 @@ public class Game extends JPanel{
         mouseX = mouseXpos/tileSize;
         mouseY = mouseYpos/tileSize;
         if(tiles[mouseY][mouseX].colour== Color.RED){
-            pieces[movingPiece[1]][movingPiece[0]].movePiece(mouseX,mouseY);
+            pieces[movingPiece[1]][movingPiece[0]].ApplyGamerules(mouseX, mouseY);
         }
         mouse_Input.firstClick = true;
         CreateTiles();

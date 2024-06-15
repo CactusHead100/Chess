@@ -14,8 +14,8 @@ import Main.Pieces.piecEnum;
 
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
-    public static int tileSize = 40;
-    public static final int boardSize = 16;
+    public static int tileSize = 80;
+    public static final int boardSize = 8;
     int mouseX;
     int mouseY;
     public static Board tiles[][] = new Board[boardSize][boardSize];
@@ -45,91 +45,54 @@ public class Game extends JPanel{
     private void CreatePieces() {
         for(int y = 0; y < boardSize; y++){
             for(int x = 0; x < boardSize; x++){
-                switch (x) {
+                switch (y) {
                     case boardSize/2-4:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, true);
-                            break;
-                        }
+                        PlacePiece(x,y,false);
                     break;
                     case boardSize/2+3:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.rook, true);
-                            break;
-                        }
+                        PlacePiece(x,y,true);
                     break;
                     case boardSize/2-3:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, true);
-                            break;
+                        if((x>=boardSize/2-4)&&(x<=boardSize/2+3)){
+                            pieces[y][x] = new Pieces(x, y, piecEnum.pawn, false);
                         }
                     break;
                     case boardSize/2+2:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.knight, true);
-                            break;
+                        if((x>=boardSize/2-4)&&(x<=boardSize/2+3)){
+                            pieces[y][x] = new Pieces(x, y, piecEnum.pawn, true);
                         }
                     break;
-                    case boardSize/2-2:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, true);
-                            break;
-                        }
-                    break;
-                    case boardSize/2+1:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.bishop, true);
-                            break;
-                        }
-                    break;
-                    case boardSize/2:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.king, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.king, true);
-                            break;
-                        }
-                    break;
-                    case boardSize/2-1:
-                        switch(y){
-                            case boardSize/2-4:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.queen, false);
-                            break;
-                            case boardSize/2+3:
-                                pieces[y][x] = new Pieces(x, y, piecEnum.queen, true);
-                            break;
-                        }
-                    break;
+                }                    
                 }
-                    
-                    
-                }
+            }
+        }
+
+        public void PlacePiece(int x,int y,boolean colourOfPiece){
+            switch (x) {
+                case boardSize/2-4:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.rook, colourOfPiece);
+                break;
+                case boardSize/2+3:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.rook, colourOfPiece);
+                break;
+                case boardSize/2-3:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.knight, colourOfPiece);
+                break;
+                case boardSize/2+2:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.knight, colourOfPiece);
+                break;
+                case boardSize/2-2:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.bishop, colourOfPiece);
+                break;
+                case boardSize/2+1:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.bishop, colourOfPiece);
+                break;
+                case boardSize/2-1:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.queen, colourOfPiece);
+                break;
+                case boardSize/2:
+                    pieces[y][x] = new Pieces(x, y, piecEnum.king, colourOfPiece);
+                break;
             }
         }
 

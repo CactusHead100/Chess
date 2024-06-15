@@ -11,8 +11,9 @@ public class Pieces {
     public enum piecEnum{pawn,knight,bishop,rook,queen,king}
     piecEnum pieceType;
     boolean whitePiece;
+    boolean pawnDoubleMove = false;
+    boolean pawnEnPassant = false;
     int moveDirecion;
-    boolean pawnStartingSquare;
     int x;
     int y;
     Rectangle2D.Double rectangle;
@@ -31,11 +32,19 @@ public class Pieces {
         }
     }
 
-    public void movePiece(int x, int y){
-        Game.pieces[this.y][this.x] = null;
-        this.x = x;
-        this.y = y;
-        Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
+    public void movePiece(int newX, int newY){
+        if((this.pieceType == piecEnum.pawn)&&((this.y+2 == newY)||(this.y-2 == newY))){
+            Game.pieces[this.y][this.x] = null;
+            this.x = newX;
+            this.y = newY;
+            Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
+            Game.pieces[this.y][this.x].pawnEnPassant = true;
+        }else{
+            Game.pieces[this.y][this.x] = null;
+            this.x = newX;
+            this.y = newY;
+            Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
+        }
     }
 
     public Boolean getAvailableMoves(){
@@ -77,7 +86,7 @@ public class Pieces {
                 break;
                 case pawn:
                 if(((this.whitePiece)&&(this.y == Game.boardSize/2+2))||((this.whitePiece == false)&&(this.y == Game.boardSize/2+-3))){
-                    this.pawnStartingSquare = true;
+                    this.pawnDoubleMove = true;
                 }
                     PawnMovement(this.moveDirecion);
                     TakeSideways(moveDirecion, 1);
@@ -91,11 +100,9 @@ public class Pieces {
             if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
                 if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
                     Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement);
-                    Game.tiles[yPos+yIncrement][xPos+xIncrement].colour = Color.red;
-                    Mouse_Input.firstClick = false;
+                    colorTiles(xPos+xIncrement, yPos+yIncrement);
                 }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece){
-                    Game.tiles[yPos+yIncrement][xPos+xIncrement].colour = Color.red;
-                    Mouse_Input.firstClick = false;
+                    colorTiles(xPos+xIncrement, yPos+yIncrement);
                 }
             }
         } catch (Exception e) {
@@ -106,16 +113,14 @@ public class Pieces {
         try {
             if((xPos+xIncrease<Game.boardSize)&&(xPos+xIncrease>=0)&&(yPos+yIncrease<Game.boardSize)&&(yPos+yIncrease>=0)){
                 if((Game.pieces[yPos+yIncrease][xPos+xIncrease] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease].whitePiece != this.whitePiece)){
-                    Game.tiles[yPos+yIncrease][xPos+xIncrease].colour = Color.red;
-                    Mouse_Input.firstClick = false;
+                    colorTiles(xPos+xIncrease, yPos+yIncrease);
                 }
             } 
         } catch (Exception e) {
         }  
         try {
             if((Game.pieces[yPos+yIncrease][xPos+xIncrease*-1] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease*-1].whitePiece != this.whitePiece)){
-                Game.tiles[yPos+yIncrease][xPos+xIncrease*-1].colour = Color.red;
-                Mouse_Input.firstClick = false;
+                colorTiles(xPos+xIncrease*-1, yPos+yIncrease);
             }
         } catch (Exception e) {
         }
@@ -124,37 +129,53 @@ public class Pieces {
 
     private void TakeSideways(int yIncrease, int xIncrease){
         try {
+            if((Game.pieces[this.y][this.x-xIncrease].whitePiece != this.whitePiece)&&
+                (Game.pieces[this.y][this.x-xIncrease].pawnEnPassant)){
+                colorTiles(this.x-xIncrease, this.y+yIncrease);
+            }
+        } catch (Exception e) {
+        }
+        try {
+            if((Game.pieces[this.y][this.x+xIncrease].whitePiece != this.whitePiece)&&
+                (Game.pieces[this.y][this.x+xIncrease].pawnEnPassant)){
+                colorTiles(this.x+xIncrease, this.y+yIncrease);
+            }
+        } catch (Exception e) {
+        }
+        try {
             if(Game.pieces[this.y+yIncrease][this.x-xIncrease].whitePiece != this.whitePiece){
-                Game.tiles[this.y+yIncrease][this.x-xIncrease].colour = Color.red;
-                Mouse_Input.firstClick = false;
+                colorTiles(this.x-xIncrease, this.y+yIncrease);
             }
         } catch (Exception e) {
         }
         try{
-            if(Game.pieces[this.y+yIncrease][this.x+xIncrease].whitePiece != this.whitePiece){
-                Game.tiles[this.y+yIncrease][this.x+xIncrease].colour = Color.red;
-                Mouse_Input.firstClick = false;
+            if((Game.pieces[this.y+yIncrease][this.x+xIncrease].whitePiece != this.whitePiece)||
+            ((Game.pieces[this.y][this.x+xIncrease].whitePiece != this.whitePiece)&&
+            (Game.pieces[this.y][this.x+xIncrease].pawnEnPassant))){
+                colorTiles(this.x+xIncrease, this.y+yIncrease);
             }
         } catch (Exception e) {
         }
     }
     private void PawnMovement(int yIncrease){
-        if(pawnStartingSquare == false){
+        if(this.pawnDoubleMove == false){
             if((this.y+yIncrease<Game.boardSize)&&(this.y+yIncrease>=0)){
                 if(Game.pieces[this.y+yIncrease][this.x] == null){
-                    Game.tiles[this.y+yIncrease][this.x].colour = Color.red;
-                    Mouse_Input.firstClick = false;
+                    colorTiles(this.x, this.y+yIncrease);
                 }
             }
-        }else{
+        }else if(this.pawnDoubleMove){
                 if((this.y+yIncrease<Game.boardSize)&&(this.y+yIncrease>=0)){
                     if(Game.pieces[this.y+yIncrease][this.x] == null){
-                        pawnStartingSquare = false;
+                        this.pawnDoubleMove = false;
                         PawnMovement(yIncrease*2);
-                        Game.tiles[this.y+yIncrease][this.x].colour = Color.red;
-                        Mouse_Input.firstClick = false;
+                        colorTiles(this.x, this.y+yIncrease);
                     }
                 }
         }
+    }
+    private void colorTiles(int xOfTile, int yOfTile){
+        Game.tiles[yOfTile][xOfTile].colour = Color.red;
+        Mouse_Input.firstClick = false;
     }
 }

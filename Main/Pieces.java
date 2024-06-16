@@ -69,7 +69,11 @@ public class Pieces {
 
 
     public Boolean GetAvailableMoves(){
-        checkIfPinned();
+        if(whitePiece){
+            checkIfPinned(Game.whiteKingXY);
+        }else{
+            checkIfPinned(Game.blackKingXY);
+        }
             if(notPinned){
                 switch (pieceType) {
                     case rook:
@@ -205,40 +209,39 @@ public class Pieces {
         Game.tiles[yOfTile][xOfTile].colour = Color.red;
         Mouse_Input.firstClick = false;
     }
-    private void checkIfPinned(){
+    private void checkIfPinned(int[] kingColour){
         this.notPinned = true;
         if(this.pieceType != piecEnum.king){
-            if(whitePiece){
-                if(Math.abs(this.x - Game.whiteKingXY[0]) == Math.abs(this.y - Game.whiteKingXY[1])){
-                    if(this.x < Game.whiteKingXY[0]){
-                        if(this.y < Game.whiteKingXY[1]){
+                if(Math.abs(this.x - kingColour[0]) == Math.abs(this.y - kingColour[1])){
+                    if(this.x < kingColour[0]){
+                        if(this.y < kingColour[1]){
                             checkIfAttaked(-1, -1, this.x, this.y);
                         }else{
                             checkIfAttaked(-1, 1, this.x, this.y);
                         }
                     }else{
-                        if(this.y < Game.whiteKingXY[1]){
+                        if(this.y < kingColour[1]){
                             checkIfAttaked(1, -1, this.x, this.y);
                         }else{
                             checkIfAttaked(1, 1, this.x, this.y);
                         }
                     }
-                }else if(this.x == Game.whiteKingXY[0]){
-                    if(this.y < Game.whiteKingXY[0]){
+                }else if(this.x == kingColour[0]){
+                    if(this.y < kingColour[0]){
                         checkIfAttaked(0, -1, this.x, this.y);
                     }else{
                         checkIfAttaked(0, 1, this.x, this.y);
                     }
-                }else if(this.y == Game.whiteKingXY[1]){
-                    if(this.x < Game.whiteKingXY[0]){
+                }else if(this.y == kingColour[1]){
+                    if(this.x < kingColour[0]){
                         checkIfAttaked(-1, 0, this.x, this.y);
                     }else{
                         checkIfAttaked(1, 0, this.x, this.y);
                     }
                 }
-            }
         }
     }
+
     private void checkIfAttaked(int xIncrement, int yIncrement, int xPos, int yPos){
         if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
             if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){

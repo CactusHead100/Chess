@@ -21,6 +21,8 @@ public class Game extends JPanel{
     public static Board tiles[][] = new Board[boardSize][boardSize];
     public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
     private int[] movingPiece = new int[2];
+    public static int[] whiteKingXY = new int [2];
+    public static int[] blackKingXY = new int [2];
 
     public Game(){
         addMouseListener(mouse_Input);
@@ -92,6 +94,13 @@ public class Game extends JPanel{
                 break;
                 case boardSize/2:
                     pieces[y][x] = new Pieces(x, y, piecEnum.king, colourOfPiece);
+                    if(colourOfPiece){
+                        whiteKingXY[0] = x;
+                        whiteKingXY[1] = y;
+                    }else{
+                        blackKingXY[0] = x;
+                        blackKingXY[1] = y;
+                    }
                 break;
             }
         }

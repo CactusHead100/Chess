@@ -14,6 +14,7 @@ public class Pieces {
     boolean pawnDoubleMove = false;
     boolean pawnEnPassant = false;
     boolean takingEnPassant = false;
+    boolean notPinned = true;
     int moveDirecion;
     int x;
     int y;
@@ -58,6 +59,7 @@ public class Pieces {
 
 
     public Boolean GetAvailableMoves(){
+        checkIfPinned();
             switch (pieceType) {
                 case rook:
                         Pathing(1,0,this.x,this.y);
@@ -100,7 +102,7 @@ public class Pieces {
                         this.pawnDoubleMove = true;
                     }
                     PawnMovement(this.moveDirecion);
-                    TakeSideways(moveDirecion, 1);
+                    TakeSideways(this.moveDirecion, 1);
                 break;
             }
         return(true);
@@ -190,5 +192,33 @@ public class Pieces {
     private void ColourTiles(int xOfTile, int yOfTile){
         Game.tiles[yOfTile][xOfTile].colour = Color.red;
         Mouse_Input.firstClick = false;
+    }
+    private void checkIfPinned(){
+        if(this.pieceType != piecEnum.king){
+            if(whitePiece){
+                if(Math.abs(this.x - Game.whiteKingXY[0]) == Math.abs(this.y - Game.whiteKingXY[1])){
+                    if(this.x < Game.whiteKingXY[0]){
+                        if(this.y < Game.whiteKingXY[1]){
+                            checkIfAttaked(-1, -1, this.x, this.y);
+                            System.out.println(notPinned);
+                        }else{
+
+                        }
+                    }
+                }else if((this.x == Game.whiteKingXY[0])||(this.y == Game.whiteKingXY[1])){
+                }
+            }
+        }
+    }
+    private void checkIfAttaked(int xIncrement, int yIncrement, int xPos, int yPos){
+        this.notPinned = true;
+        System.out.println("checking");
+        if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
+            if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
+                checkIfAttaked(xIncrement, yIncrement, xPos+xIncrement, yPos+yIncrement);
+            }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece){
+                this.notPinned = false;
+            }
+        }
     }
 }

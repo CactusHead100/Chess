@@ -35,18 +35,28 @@ public class Pieces {
     }
 
     public void ApplyGamerules(int newX, int newY){
-        if(this.pieceType == piecEnum.pawn){
-            if((this.y+2 == newY)||(this.y-2 == newY)){
+        switch (pieceType) {
+            case pawn:
+                if((this.y+2 == newY)||(this.y-2 == newY)){
+                    MovePiece(newX, newY);
+                    Game.pieces[this.y][this.x].pawnEnPassant = true;
+                }else if(takingEnPassant){
+                    MovePiece(newX, newY);
+                    Game.pieces[newY+moveDirecion*-1][newX] = null;
+                }else{
+                    MovePiece(newX, newY);
+                }
+            break;
+            case king:
+                if(this.whitePiece){
+                    Game.whiteKingXY[0] = newX;
+                    Game.whiteKingXY[1] = newY;
+                    MovePiece(newX, newY);
+                }
+            break;
+            default:
                 MovePiece(newX, newY);
-                Game.pieces[this.y][this.x].pawnEnPassant = true;
-            }else if(takingEnPassant){
-                MovePiece(newX, newY);
-                Game.pieces[newY+moveDirecion*-1][newX] = null;
-            }else{
-                MovePiece(newX, newY);
-            }
-        }else{
-            MovePiece(newX, newY);
+            break;
         }
     }
 
@@ -60,50 +70,52 @@ public class Pieces {
 
     public Boolean GetAvailableMoves(){
         checkIfPinned();
-            switch (pieceType) {
-                case rook:
+            if(notPinned){
+                switch (pieceType) {
+                    case rook:
                         Pathing(1,0,this.x,this.y);
                         Pathing(-1,0,this.x,this.y);
                         Pathing(0,1,this.x,this.y);
                         Pathing(0,-1,this.x,this.y);
-                break;
-                case bishop:
-                    Pathing(1,1,this.x,this.y);
-                    Pathing(-1,1,this.x,this.y);
-                    Pathing(1,-1,this.x,this.y);
-                    Pathing(-1,-1,this.x,this.y);
-                break;
-                case queen:
-                    Pathing(1,0,this.x,this.y);
-                    Pathing(-1,0,this.x,this.y);
-                    Pathing(0,1,this.x,this.y);
-                    Pathing(0,-1,this.x,this.y);
-                    Pathing(1,1,this.x,this.y);
-                    Pathing(-1,1,this.x,this.y);
-                    Pathing(1,-1,this.x,this.y);
-                    Pathing(-1,-1,this.x,this.y);
-                break;
-                case knight:
+                    break;
+                    case bishop:
+                        Pathing(1,1,this.x,this.y);
+                        Pathing(-1,1,this.x,this.y);
+                        Pathing(1,-1,this.x,this.y);
+                        Pathing(-1,-1,this.x,this.y);
+                    break;
+                    case queen:
+                        Pathing(1,0,this.x,this.y);
+                        Pathing(-1,0,this.x,this.y);
+                        Pathing(0,1,this.x,this.y);
+                        Pathing(0,-1,this.x,this.y);
+                        Pathing(1,1,this.x,this.y);
+                        Pathing(-1,1,this.x,this.y);
+                        Pathing(1,-1,this.x,this.y);
+                        Pathing(-1,-1,this.x,this.y);
+                    break;
+                    case knight:
                         Jumping(1,2, this.x, this.y);
                         Jumping(2,1, this.x, this.y);
                         Jumping(1,-2, this.x, this.y);
                         Jumping(2,-1, this.x, this.y);
-                break;
-                case king:
+                    break;
+                    case king:
                         Jumping(1,1, this.x, this.y);
                         Jumping(0,1, this.x, this.y);
                         Jumping(1,0, this.x, this.y);
                         Jumping(0,-1, this.x, this.y);
                         Jumping(1,-1, this.x, this.y);
-                break;
-                case pawn:
-                    takingEnPassant = false;
-                    if(((this.whitePiece)&&(this.y == Game.boardSize/2+2))||((this.whitePiece == false)&&(this.y == Game.boardSize/2+-3))){
-                        this.pawnDoubleMove = true;
-                    }
-                    PawnMovement(this.moveDirecion);
-                    TakeSideways(this.moveDirecion, 1);
-                break;
+                    break;
+                    case pawn:
+                        takingEnPassant = false;
+                        if(((this.whitePiece)&&(this.y == Game.boardSize/2+2))||((this.whitePiece == false)&&(this.y == Game.boardSize/2+-3))){
+                            this.pawnDoubleMove = true;
+                        }
+                        PawnMovement(this.moveDirecion);
+                        TakeSideways(this.moveDirecion, 1);
+                    break;
+                }
             }
         return(true);
     }
@@ -194,25 +206,40 @@ public class Pieces {
         Mouse_Input.firstClick = false;
     }
     private void checkIfPinned(){
+        this.notPinned = true;
         if(this.pieceType != piecEnum.king){
             if(whitePiece){
                 if(Math.abs(this.x - Game.whiteKingXY[0]) == Math.abs(this.y - Game.whiteKingXY[1])){
                     if(this.x < Game.whiteKingXY[0]){
                         if(this.y < Game.whiteKingXY[1]){
                             checkIfAttaked(-1, -1, this.x, this.y);
-                            System.out.println(notPinned);
                         }else{
-
+                            checkIfAttaked(-1, 1, this.x, this.y);
+                        }
+                    }else{
+                        if(this.y < Game.whiteKingXY[1]){
+                            checkIfAttaked(1, -1, this.x, this.y);
+                        }else{
+                            checkIfAttaked(1, 1, this.x, this.y);
                         }
                     }
-                }else if((this.x == Game.whiteKingXY[0])||(this.y == Game.whiteKingXY[1])){
+                }else if(this.x == Game.whiteKingXY[0]){
+                    if(this.y < Game.whiteKingXY[0]){
+                        checkIfAttaked(0, -1, this.x, this.y);
+                    }else{
+                        checkIfAttaked(0, 1, this.x, this.y);
+                    }
+                }else if(this.y == Game.whiteKingXY[1]){
+                    if(this.x < Game.whiteKingXY[0]){
+                        checkIfAttaked(-1, 0, this.x, this.y);
+                    }else{
+                        checkIfAttaked(1, 0, this.x, this.y);
+                    }
                 }
             }
         }
     }
     private void checkIfAttaked(int xIncrement, int yIncrement, int xPos, int yPos){
-        this.notPinned = true;
-        System.out.println("checking");
         if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
             if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
                 checkIfAttaked(xIncrement, yIncrement, xPos+xIncrement, yPos+yIncrement);

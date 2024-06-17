@@ -1,12 +1,9 @@
 package Main;
-
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.Dictionary;
 import java.util.Hashtable;
-
-
 public class Pieces {
     public enum piecEnum{pawn,knight,bishop,rook,queen,king}
     piecEnum pieceType;
@@ -14,12 +11,12 @@ public class Pieces {
     boolean pawnDoubleMove = false;
     boolean pawnEnPassant = false;
     boolean takingEnPassant = false;
-    boolean notPinned = true;
     int moveDirecion;
     String dictReference;
     int x;
     int y;
     Rectangle2D.Double rectangle;
+    boolean sprite[][];
     Pieces(int x,int y,piecEnum pieceType, boolean whitePiece){
         this.pieceType = pieceType;
         this.whitePiece = whitePiece;
@@ -53,7 +50,7 @@ public class Pieces {
     }
 
     public void ApplyGamerules(int newX, int newY){
-        for(int i = 0; i<7; i++){
+        for(int i = 0; i<8; i++){
             try {
                 Game.pieces[(int)(Math.round((Game.pieceXY.get("wp"+Integer.toString(i))-(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i))))*10))][(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i)))].pawnEnPassant = false;
                 Game.pieces[(int)(Math.round((Game.pieceXY.get("bp"+Integer.toString(i))-(int)Math.floor(Game.pieceXY.get("bp"+Integer.toString(i))))*10))][(int)Math.floor(Game.pieceXY.get("bp"+Integer.toString(i)))].pawnEnPassant = false;
@@ -84,27 +81,18 @@ public class Pieces {
             break;
         }
     }
-
     public void MovePiece(int newX, int newY){
         Game.pieces[this.y][this.x] = null;
         this.x = newX;
         this.y = newY;
         Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
         try {
-            System.out.println(Game.pieceXY.get(dictReference));
             Game.pieceXY.put(dictReference, Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y))));
         } catch (Exception e) {
         }
+            
     }
-
-
     public Boolean GetAvailableMoves(){
-        if(whitePiece){
-            checkIfPinned(Game.whiteKingXY);
-        }else{
-            checkIfPinned(Game.blackKingXY);
-        }
-            if(notPinned){
                 switch (pieceType) {
                     case rook:
                         Pathing(1,0,this.x,this.y);
@@ -150,10 +138,8 @@ public class Pieces {
                         TakeSideways(this.moveDirecion, 1);
                     break;
                 }
-            }
         return(true);
     }
-
     private void Pathing(int xIncrement, int yIncrement, int xPos, int yPos){
         try {
             if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
@@ -167,7 +153,6 @@ public class Pieces {
         } catch (Exception e) {
         }
     }
-
     private void Jumping(int xIncrease, int yIncrease, int xPos, int yPos){
         try {
             if((xPos+xIncrease<Game.boardSize)&&(xPos+xIncrease>=0)&&(yPos+yIncrease<Game.boardSize)&&(yPos+yIncrease>=0)){
@@ -184,8 +169,6 @@ public class Pieces {
         } catch (Exception e) {
         }
     }
-
-
     private void TakeSideways(int yIncrease, int xIncrease){
         try {
             if((Game.pieces[this.y][this.x-xIncrease].whitePiece != this.whitePiece)&&
@@ -239,46 +222,5 @@ public class Pieces {
         Game.tiles[yOfTile][xOfTile].colour = Color.red;
         Mouse_Input.firstClick = false;
     }
-    private void checkIfPinned(int[] kingColour){
-        this.notPinned = true;
-        if(this.pieceType != piecEnum.king){
-                if(Math.abs(this.x - kingColour[0]) == Math.abs(this.y - kingColour[1])){
-                    if(this.x < kingColour[0]){
-                        if(this.y < kingColour[1]){
-                            checkIfAttaked(-1, -1, this.x, this.y);
-                        }else{
-                            checkIfAttaked(-1, 1, this.x, this.y);
-                        }
-                    }else{
-                        if(this.y < kingColour[1]){
-                            checkIfAttaked(1, -1, this.x, this.y);
-                        }else{
-                            checkIfAttaked(1, 1, this.x, this.y);
-                        }
-                    }
-                }else if(this.x == kingColour[0]){
-                    if(this.y < kingColour[0]){
-                        checkIfAttaked(0, -1, this.x, this.y);
-                    }else{
-                        checkIfAttaked(0, 1, this.x, this.y);
-                    }
-                }else if(this.y == kingColour[1]){
-                    if(this.x < kingColour[0]){
-                        checkIfAttaked(-1, 0, this.x, this.y);
-                    }else{
-                        checkIfAttaked(1, 0, this.x, this.y);
-                    }
-                }
-        }
-    }
-
-    private void checkIfAttaked(int xIncrement, int yIncrement, int xPos, int yPos){
-        if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
-            if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
-                checkIfAttaked(xIncrement, yIncrement, xPos+xIncrement, yPos+yIncrement);
-            }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece){
-                this.notPinned = false;
-            }
-        }
-    }
+    
 }

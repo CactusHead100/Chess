@@ -23,7 +23,7 @@ public class Game extends JPanel{
     private int[] movingPiece = new int[2];
     public static int[] whiteKingXY = new int [2];
     public static int[] blackKingXY = new int [2];
-
+    public static Dictionary<String, Double> pieceXY = new Hashtable<>();
     public Game(){
         addMouseListener(mouse_Input);
         addMouseMotionListener(mouse_Input);

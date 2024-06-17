@@ -16,6 +16,7 @@ public class Pieces {
     boolean takingEnPassant = false;
     boolean notPinned = true;
     int moveDirecion;
+    String dictReference;
     int x;
     int y;
     Rectangle2D.Double rectangle;
@@ -25,16 +26,37 @@ public class Pieces {
         this.x = x;
         this.y = y;
         rectangle = new Rectangle.Double(x*Game.tileSize+10,y*Game.tileSize+10,Game.tileSize-20,Game.tileSize-20);
-        if(pieceType == piecEnum.pawn){
-            if(this.whitePiece){
-                moveDirecion = -1;
-            }else{
-                moveDirecion = 1;
+            switch (pieceType) {
+                case pawn:
+                    if(this.whitePiece){
+                        moveDirecion = -1;
+                        dictReference = "wp"+Integer.toString(this.x);
+                        Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y)));
+                    }else{
+                        moveDirecion = 1;
+                        dictReference = "bp"+Integer.toString(this.x);
+                        Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y)));
+                    }
+                break;
+                case king:
+                    if(this.whitePiece){
+                        dictReference = "wk";
+                        Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y)));
+                    }else{
+                        dictReference = "bk";
+                        Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y)));
+                    }
+                break;
             }
-        }
+            
+        
     }
 
     public void ApplyGamerules(int newX, int newY){
+        for(int i = 0; i<7; i++){
+            Game.pieces[(int)(Math.round((Game.pieceXY.get("wp"+Integer.toString(i))-(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i))))*10))][(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i)))].pawnEnPassant = false;
+            Game.pieces[(int)(Math.round((Game.pieceXY.get("bp"+Integer.toString(i))-(int)Math.floor(Game.pieceXY.get("bp"+Integer.toString(i))))*10))][(int)Math.floor(Game.pieceXY.get("bp"+Integer.toString(i)))].pawnEnPassant = false;
+        }
         switch (pieceType) {
             case pawn:
                 if((this.y+2 == newY)||(this.y-2 == newY)){
@@ -65,6 +87,11 @@ public class Pieces {
         this.x = newX;
         this.y = newY;
         Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
+        try {
+            System.out.println(Game.pieceXY.get(dictReference));
+            Game.pieceXY.put(dictReference, Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y))));
+        } catch (Exception e) {
+        }
     }
 
 

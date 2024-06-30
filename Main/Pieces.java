@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 public class Pieces {
     public enum piecEnum{pawn,knight,bishop,rook,queen,king,enemyPiece}
     piecEnum pieceType;
-    piecEnum pinnedPieces[][] = new piecEnum[12][2];  
+    piecEnum pinnedPieces[][] = new piecEnum[16][2];  
     boolean whitePiece;
     boolean pawnDoubleMove = false;
     boolean pawnEnPassant = false;
@@ -248,47 +248,91 @@ public class Pieces {
         switch (checkedPiece) {
             case king:
                 if(checkY + increase<Game.boardSize){
-                    if(increase == 2){
-                        checkingLinearY(checkX, checkY, increase, doing, true);
-                    }else{
-                        checkingLinearY(checkX, checkY, increase, doing, false);
-                    }
+                        checkingLines(checkX, checkY + increase, doing, increase == 2 ? 'y':'l');
                 }
                 if(checkY - increase>=0){
-                    if(increase == 2){
-                        checkingLinearY(checkX, checkY, increase*-1, doing+1, true);
-                    }else{
-                        checkingLinearY(checkX, checkY, increase*-1, doing+1, false);
-                    }
+                        checkingLines(checkX, checkY - increase, doing+1, increase == 2 ? 'y':'l');
                 }
-                if((checkY + increase<Game.boardSize)||(checkY - increase>=0)){
+                if(checkX + increase<Game.boardSize){
+                        checkingLines(checkX + increase, checkY, doing+2, increase == 2 ? 'x':'l');
+                }
+                if(checkX - increase>=0){
+                        checkingLines(checkX - increase, checkY, doing+3, increase == 2 ? 'x':'l');
+                }
+                if((checkX - increase>=0)&&(checkY - increase>=0)){
+                    checkingLines(checkX - increase, checkY - increase, doing+4, increase == 1 ? 'p':'d');
+                }
+                if((checkX + increase<Game.boardSize)&&(checkY - increase>=0)){
+                    checkingLines(checkX + increase, checkY - increase, doing+5, increase == 1 ? 'p':'d');
+                }
+                if((checkX - increase>=0)&&(checkY + increase<Game.boardSize)){
+                    checkingLines(checkX - increase, checkY + increase, doing+6, increase == 1 ? 'p':'d');
+                }
+                if((checkX + increase<Game.boardSize)&&(checkY + increase<Game.boardSize)){
+                    checkingLines(checkX + increase, checkY + increase, doing+7, increase == 1 ? 'p':'d');
+                }
+                if((checkY + increase<Game.boardSize)||(checkY - increase>=0)||(checkX + increase<Game.boardSize)||
+                    (checkX - increase>=0)||((checkX - increase>=0)&&(checkY - increase>=0))||((checkX + increase<Game.boardSize)&&(checkY - increase>=0))
+                    ||((checkX - increase>=0)&&(checkY + increase<Game.boardSize))||((checkX + increase>=0)&&(checkY + increase<Game.boardSize))){
                     checkChecker(piecEnum.king, checkX,checkY,doing,increase+1);
                 }
             break;
         }
     }
 
-    private void checkingLinearY(int checkX, int checkY, int increase,int storingNumber, boolean checkKnights){
-        if(checkKnights){
+    private void checkingLines(int checkX, int checkY, int storingNumber, char checkPiece){
+        if(checkPiece == 'y'){
             try {
-                if((Game.pieces[checkY+increase][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX-1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+4, checkX-1, checkY+increase, true);
+                if((Game.pieces[checkY][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX-1].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+8, checkX-1, checkY, true);
                 }
             } catch (Exception e) {
             }
             try {
-                if((Game.pieces[checkY+increase][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX+1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+5, checkX+1, checkY+increase, true);
+                if((Game.pieces[checkY][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX+1].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+9, checkX+1, checkY, true);
                 }
             } catch (Exception e) {
             }
-        }
-        if(Game.pieces[checkY+increase][checkX] != null){
-            if(Game.pieces[checkY+increase][checkX].whitePiece == this.whitePiece){
-                pieceStoring(storingNumber, checkX, checkY+increase, false);
-            }else if((Game.pieces[checkY+increase][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY+increase][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY+increase][checkX].pieceType == piecEnum.queen))){ 
-                pieceStoring(storingNumber, checkX, checkY+increase, true);
+            checkingLines(checkX,checkY,storingNumber,'l');
+        }else if(checkPiece == 'x'){
+            try {
+                if((Game.pieces[checkY-1][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY-1][checkX].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+4, checkX, checkY-1, true);
+                }
+            } catch (Exception e) {
             }
+            try {
+                if((Game.pieces[checkY+1][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY+1][checkX].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+5, checkX, checkY+1, true);
+                }
+            } catch (Exception e) {
+            }
+            checkingLines(checkX,checkY,storingNumber,'l');
+        }else if(checkPiece == 'l'){
+            if(Game.pieces[checkY][checkX] != null){
+                if(Game.pieces[checkY][checkX].whitePiece == this.whitePiece){
+                    pieceStoring(storingNumber, checkX, checkY, false);
+                }else if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY][checkX].pieceType == piecEnum.queen))){ 
+                    pieceStoring(storingNumber, checkX, checkY, true);
+                }
+            }
+        }else if(checkPiece == 'd'){
+            if(Game.pieces[checkY][checkX] != null){
+                if(Game.pieces[checkY][checkX].whitePiece == this.whitePiece){
+                    pieceStoring(storingNumber, checkX, checkY, false);
+                }else if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY][checkX].pieceType == piecEnum.bishop)||(Game.pieces[checkY][checkX].pieceType == piecEnum.queen))){ 
+                    pieceStoring(storingNumber, checkX, checkY, true);
+                }
+            }
+        }else if(checkPiece == 'p'){
+            try {
+                if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX].pieceType == piecEnum.pawn)){ 
+                    pieceStoring(storingNumber, checkX, checkY, true);
+                }
+            } catch (Exception e) {
+            }
+            checkingLines(checkX,checkY,storingNumber,'d');
         }
     }
 
@@ -299,6 +343,7 @@ public class Pieces {
             }else if(pinnedPieces[storeSpot][1] == null){
                 pinnedPieces[storeSpot][1] = piecEnum.enemyPiece;
             }
+            System.out.println(pinnedPieces[storeSpot][0]+","+pinnedPieces[storeSpot][1]);
         }else{
             if(pinnedPieces[storeSpot][0] == null){
                 pinnedPieces[storeSpot][0] = Game.pieces[storeY][storeX].pieceType;
@@ -306,6 +351,5 @@ public class Pieces {
                 pinnedPieces[storeSpot][1] = Game.pieces[storeY][storeX].pieceType;
             }
         }
-        System.out.println(pinnedPieces[storeSpot][0]+","+pinnedPieces[storeSpot][1]);
     }
 }

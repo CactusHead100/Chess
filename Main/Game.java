@@ -1,28 +1,22 @@
 package Main;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Dictionary;
 import java.util.Hashtable;
-
-import javax.swing.JPanel;
-
+import javax.swing.*;
 import Main.Pieces.piecEnum;
 
 public class Game extends JPanel{
     private Mouse_Input mouse_Input = new Mouse_Input(this);
-    public static int tileSize = 80;
+    public static final int tileSize = 80;
     public static final int boardSize = 8;
+    public static final int pixelSize = tileSize/16;
     int mouseX;
     int mouseY;
     public static Board tiles[][] = new Board[boardSize][boardSize];
     public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
     private int[] movingPiece = new int[2];
-    public static int[] whiteKingXY = new int [2];
-    public static int[] blackKingXY = new int [2];
     public static Dictionary<String, Double> pieceXY = new Hashtable<>();
     public Game(){
         addMouseListener(mouse_Input);
@@ -94,13 +88,6 @@ public class Game extends JPanel{
                 break;
                 case boardSize/2:
                     pieces[y][x] = new Pieces(x, y, piecEnum.king, colourOfPiece);
-                    if(colourOfPiece){
-                        whiteKingXY[0] = x;
-                        whiteKingXY[1] = y;
-                    }else{
-                        blackKingXY[0] = x;
-                        blackKingXY[1] = y;
-                    }
                 break;
             }
         }
@@ -147,11 +134,14 @@ public class Game extends JPanel{
                     }else{
                         g2d.setColor(Color.green);
                     }
-                    g2d.fill(pieces[y][x].rectangle);
+                    for(int i = 0; i < pieces[y][x].rectangle.length; i++){ 
+                        g2d.fill(pieces[y][x].rectangle[i]);
+                    }
                 } catch (Exception e) {
                 }
             }
         } 
+        
     }
 }
 

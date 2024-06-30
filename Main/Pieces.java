@@ -272,13 +272,13 @@ public class Pieces {
         if(checkKnights){
             try {
                 if((Game.pieces[checkY+increase][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX-1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+4, checkX-1, checkY-increase, true);
+                    pieceStoring(storingNumber+4, checkX-1, checkY+increase, true);
                 }
             } catch (Exception e) {
             }
             try {
                 if((Game.pieces[checkY+increase][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX+1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+5, checkX+1, checkY-increase, true);
+                    pieceStoring(storingNumber+5, checkX+1, checkY+increase, true);
                 }
             } catch (Exception e) {
             }

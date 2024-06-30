@@ -247,66 +247,48 @@ public class Pieces {
     private void checkChecker(piecEnum checkedPiece, int checkX, int checkY, int doing, int increase){
         switch (checkedPiece) {
             case king:
-                switch (doing) {
-                    case 0:
-                        if(checkY - increase>=0){
-                            if(increase == 2){
-
-                                try {
-                                    if((Game.pieces[checkY-increase][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY-increase][checkX-1].pieceType == piecEnum.knight)){ 
-                                        pieceStoring(4, checkX-1, checkY-increase, true);
-                                    }
-                                } catch (Exception e) {
-                                }
-                                try {
-                                    if((Game.pieces[checkY-increase][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY-increase][checkX+1].pieceType == piecEnum.knight)){ 
-                                        pieceStoring(5, checkX+1, checkY-increase, true);
-                                    }
-                                } catch (Exception e) {
-                                }
-                            }
-                            if(Game.pieces[checkY-increase][checkX] != null){
-                                if(Game.pieces[checkY-increase][checkX].whitePiece == this.whitePiece){
-                                    pieceStoring(doing, checkX, checkY-increase, false);
-                                }else if((Game.pieces[checkY-increase][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY-increase][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY-increase][checkX].pieceType == piecEnum.queen))){ 
-                                    pieceStoring(doing, checkX, checkY-increase, true);
-                                }
-                             }
-                            checkChecker(piecEnum.king, checkX,checkY,doing,increase+1);
-                        }else{
-                            checkChecker(piecEnum.king, checkX,checkY,doing+1,1);
-                        }
-                    break;
-                    case 1:
-                        if(checkY + increase<Game.boardSize){
-                            if(increase == 2){
-                                try {
-                                    if((Game.pieces[checkY+increase][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX-1].pieceType == piecEnum.knight)){ 
-                                        pieceStoring(6, checkX-1, checkY-increase, true);
-                                    }
-                                } catch (Exception e) {
-                                }
-                                try {
-                                    if((Game.pieces[checkY+increase][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX+1].pieceType == piecEnum.knight)){ 
-                                        pieceStoring(7, checkX+1, checkY-increase, true);
-                                    }
-                                } catch (Exception e) {
-                                }
-                            }
-                            if(Game.pieces[checkY+increase][checkX] != null){
-                                if(Game.pieces[checkY+increase][checkX].whitePiece == this.whitePiece){
-                                    pieceStoring(doing, checkX, checkY+increase, false);
-                                }else if((Game.pieces[checkY+increase][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY+increase][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY+increase][checkX].pieceType == piecEnum.queen))){ 
-                                    pieceStoring(doing, checkX, checkY+increase, true);
-                                }
-                            }
-                            checkChecker(piecEnum.king, checkX,checkY,doing,increase+1);
-                        }else{
-                            //checkChecker(piecEnum.king, checkX,checkY,doing++,1);
-                        }
-                    break;
+                if(checkY + increase<Game.boardSize){
+                    if(increase == 2){
+                        checkingLinearY(checkX, checkY, increase, doing, true);
+                    }else{
+                        checkingLinearY(checkX, checkY, increase, doing, false);
+                    }
+                }
+                if(checkY - increase>=0){
+                    if(increase == 2){
+                        checkingLinearY(checkX, checkY, increase*-1, doing+1, true);
+                    }else{
+                        checkingLinearY(checkX, checkY, increase*-1, doing+1, false);
+                    }
+                }
+                if((checkY + increase<Game.boardSize)||(checkY - increase>=0)){
+                    checkChecker(piecEnum.king, checkX,checkY,doing,increase+1);
                 }
             break;
+        }
+    }
+
+    private void checkingLinearY(int checkX, int checkY, int increase,int storingNumber, boolean checkKnights){
+        if(checkKnights){
+            try {
+                if((Game.pieces[checkY+increase][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX-1].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+4, checkX-1, checkY-increase, true);
+                }
+            } catch (Exception e) {
+            }
+            try {
+                if((Game.pieces[checkY+increase][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY+increase][checkX+1].pieceType == piecEnum.knight)){ 
+                    pieceStoring(storingNumber+5, checkX+1, checkY-increase, true);
+                }
+            } catch (Exception e) {
+            }
+        }
+        if(Game.pieces[checkY+increase][checkX] != null){
+            if(Game.pieces[checkY+increase][checkX].whitePiece == this.whitePiece){
+                pieceStoring(storingNumber, checkX, checkY+increase, false);
+            }else if((Game.pieces[checkY+increase][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY+increase][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY+increase][checkX].pieceType == piecEnum.queen))){ 
+                pieceStoring(storingNumber, checkX, checkY+increase, true);
+            }
         }
     }
 

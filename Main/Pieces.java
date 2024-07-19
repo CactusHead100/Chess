@@ -7,13 +7,14 @@ import java.util.concurrent.CountDownLatch;
 public class Pieces {
     public enum piecEnum{pawn,knight,bishop,rook,queen,king,enemyPiece}
     piecEnum pieceType;
-    piecEnum pinnedPieces[][] = new piecEnum[16][2];  
+    Pieces pinnedPieces[][] = new Pieces[18][2];
     boolean whitePiece;
     boolean pawnDoubleMove = false;
     boolean pawnEnPassant = false;
     boolean takingEnPassant = false;
     boolean notInCheck = true;
     int moveDirecion;
+    int kingChecked = 0;
     String dictReference;
     int x;
     int y;
@@ -69,6 +70,7 @@ public class Pieces {
     }
 
     public void ApplyGamerules(int newX, int newY){
+        //System.out.println('\u000c');
         for(int i = 0; i<8; i++){
             try {
                 Game.pieces[(int)(Math.round((Game.pieceXY.get("wp"+Integer.toString(i))-(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i))))*10))][(int)Math.floor(Game.pieceXY.get("wp"+Integer.toString(i)))].pawnEnPassant = false;
@@ -78,15 +80,17 @@ public class Pieces {
         }
         switch (pieceType) {
             case pawn:
+            System.out.println(this.y);
                 if((this.y+2 == newY)||(this.y-2 == newY)){
                     MovePiece(newX, newY);
-                    Game.pieces[this.y][this.x].pawnEnPassant = true;
+                    Game.pieces[newY][newX].pawnEnPassant = true;
                 }else if(takingEnPassant){
                     MovePiece(newX, newY);
-                    Game.pieces[newY+moveDirecion*-1][newX] = null;
+                    Game.pieces[newY-moveDirecion][newX] = null;
                 }else{
                     MovePiece(newX, newY);
                 }
+                Game.pieceXY.put(this.dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(newY)));
             break;
             case king:
                 Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(newX)+"."+Integer.toString(newY)));
@@ -99,126 +103,169 @@ public class Pieces {
     }
     public void MovePiece(int newX, int newY){
         Game.pieces[this.y][this.x] = null;
-        this.x = newX;
-        this.y = newY;
-        Game.pieces[this.y][this.x] = new Pieces(this.x, this.y, this.pieceType, this.whitePiece);
-        try {
-            Game.pieceXY.put(dictReference, Game.pieceXY.put(dictReference,Double.parseDouble(Integer.toString(this.x)+"."+Integer.toString(this.y))));
-        } catch (Exception e) {
-        }
-            
+        Game.pieces[newY][newX] = new Pieces(newX, newY, this.pieceType, this.whitePiece);          
     }
     public void GetAvailableMoves(){
-        if(this.whitePiece){
-            checkChecker(piecEnum.king, (int)Math.floor(Game.pieceXY.get("wk")), (int)(Math.round((Game.pieceXY.get("wk")-(int)Math.floor(Game.pieceXY.get("wk")))*10)), 0, 1);
-        }else{
-            checkChecker(piecEnum.king, (int)Math.floor(Game.pieceXY.get("bk")), (int)(Math.round((Game.pieceXY.get("bk")-(int)Math.floor(Game.pieceXY.get("bk")))*10)), 0, 1);
+        for(int i = 0; i < 18; i++){
+            pinnedPieces[i][0] = null;
+            pinnedPieces[i][1] = null;
         }
-        if(notInCheck){
-                switch (pieceType) {
-                    case rook:
-                        Pathing(1,0,this.x,this.y);
-                        Pathing(-1,0,this.x,this.y);
-                        Pathing(0,1,this.x,this.y);
-                        Pathing(0,-1,this.x,this.y);
-                    break;
-                    case bishop:
-                        Pathing(1,1,this.x,this.y);
-                        Pathing(-1,1,this.x,this.y);
-                        Pathing(1,-1,this.x,this.y);
-                        Pathing(-1,-1,this.x,this.y);
-                    break;
-                    case queen:
-                        Pathing(1,0,this.x,this.y);
-                        Pathing(-1,0,this.x,this.y);
-                        Pathing(0,1,this.x,this.y);
-                        Pathing(0,-1,this.x,this.y);
-                        Pathing(1,1,this.x,this.y);
-                        Pathing(-1,1,this.x,this.y);
-                        Pathing(1,-1,this.x,this.y);
-                        Pathing(-1,-1,this.x,this.y);
-                    break;
-                    case knight:
-                        Jumping(1,2, this.x, this.y);
-                        Jumping(2,1, this.x, this.y);
-                        Jumping(1,-2, this.x, this.y);
-                        Jumping(2,-1, this.x, this.y);
-                    break;
-                    case king:
-                        Jumping(1,1, this.x, this.y);
-                        Jumping(0,1, this.x, this.y);
-                        Jumping(1,0, this.x, this.y);
-                        Jumping(0,-1, this.x, this.y);
-                        Jumping(1,-1, this.x, this.y);
-                    break;
-                    case pawn:
-                        takingEnPassant = false;
-                        if(((this.whitePiece)&&(this.y == Game.boardSize/2+2))||((this.whitePiece == false)&&(this.y == Game.boardSize/2+-3))){
-                            this.pawnDoubleMove = true;
-                        }
-                        PawnMovement(this.moveDirecion);
-                        TakeSideways(this.moveDirecion, 1);
-                    break;
-                }
-            }
+        kingChecked = 0;
+        System.out.println("start");
+        Pathing(1,0,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,0);
+        Pathing(-1,0,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,1);
+        Pathing(0,1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,2);
+        Pathing(0,-1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,3);
+        Pathing(1,1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,4);
+        Pathing(-1,1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,5);
+        Pathing(1,-1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,6);
+        Pathing(-1,-1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,7);
+        Jumping(1,2,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,8);
+        Jumping(2,1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,9);
+        Jumping(1,-2,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,10);
+        Jumping(2,-1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,11);
+        TakeSideways(this.whitePiece?-1:1,1, false, 16);     
+        
+        ResolvingCheck();
     }
-    private void Pathing(int xIncrement, int yIncrement, int xPos, int yPos){
+    private void normalMoves(){
+        switch (pieceType) {
+            case rook:
+                Pathing(1,0,this.x,this.y,true,0);
+                Pathing(-1,0,this.x,this.y,true,0);
+                Pathing(0,1,this.x,this.y,true,0);
+                Pathing(0,-1,this.x,this.y,true,0);
+            break;
+            case bishop:
+                Pathing(1,1,this.x,this.y,true,0);
+                Pathing(-1,1,this.x,this.y,true,0);
+                Pathing(1,-1,this.x,this.y,true,0);
+                Pathing(-1,-1,this.x,this.y,true,0);
+            break;
+            case queen:
+                Pathing(1,0,this.x,this.y,true,0);
+                Pathing(-1,0,this.x,this.y,true,0);
+                Pathing(0,1,this.x,this.y,true,0);
+                Pathing(0,-1,this.x,this.y,true,0);
+                Pathing(1,1,this.x,this.y,true,0);
+                Pathing(-1,1,this.x,this.y,true,0);
+                Pathing(1,-1,this.x,this.y,true,0);
+                Pathing(-1,-1,this.x,this.y,true,0);
+            break;
+            case knight:
+                Jumping(1,2, this.x, this.y,true,0);
+                Jumping(2,1, this.x, this.y,true,0);
+                Jumping(1,-2, this.x, this.y,true,0);
+                Jumping(2,-1, this.x, this.y,true,0);
+            break;
+            case king:
+                Jumping(1,1, this.x, this.y,true,0);
+                Jumping(0,1, this.x, this.y,true,0);
+                Jumping(1,0, this.x, this.y,true,0);
+                Jumping(0,-1, this.x, this.y,true,0);
+                Jumping(1,-1, this.x, this.y,true,0);
+            break;
+            case pawn:
+                takingEnPassant = false;
+                if(((this.whitePiece)&&(this.y == Game.boardSize/2+2))||((this.whitePiece == false)&&(this.y == Game.boardSize/2+-3))){
+                    this.pawnDoubleMove = true;
+                }
+                PawnMovement(this.moveDirecion);
+                TakeSideways(this.moveDirecion, 1,true,0);
+            break;
+    }
+    }
+    private void Pathing(int xIncrement, int yIncrement, int xPos, int yPos, boolean movement, int storeSpot){
         try {
             if((xPos+xIncrement<Game.boardSize)&&(xPos+xIncrement>=0)&&(yPos+yIncrement<Game.boardSize)&&(yPos+yIncrement>=0)){
-                if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
-                    Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement);
-                    ColourTiles(xPos+xIncrement, yPos+yIncrement);
-                }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece){
-                    ColourTiles(xPos+xIncrement, yPos+yIncrement);
+                if(movement){
+                    if(Game.pieces[yPos+yIncrement][xPos+xIncrement] == null){
+                        Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement, movement, storeSpot);
+                        ColourTiles(xPos+xIncrement, yPos+yIncrement);
+                    }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece){
+                        ColourTiles(xPos+xIncrement, yPos+yIncrement);
+                    }
+                }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement] != null){
+                    if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece == this.whitePiece){
+                        pieceStoring(storeSpot, xPos+xIncrement, yPos+yIncrement,false);
+                    }else if((Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece)&&
+                    (((xIncrement == 0)||(yIncrement == 0))&&((Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.rook)||(Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.queen)))||
+                    ((((xIncrement == 1)||(xIncrement == -1))&&((yIncrement == 1)||(yIncrement == -1)))&&((Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.bishop)||(Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.queen)))){
+                        pieceStoring(storeSpot, xPos+xIncrement, yPos+yIncrement,true);
+                    }
+                }else{
+                    Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement, movement, storeSpot);
                 }
             }
         } catch (Exception e) {
         }
     }
-    private void Jumping(int xIncrease, int yIncrease, int xPos, int yPos){
-        try {
+    private void Jumping(int xIncrease, int yIncrease, int xPos, int yPos, boolean movement, int storeSpot){
             if((xPos+xIncrease<Game.boardSize)&&(xPos+xIncrease>=0)&&(yPos+yIncrease<Game.boardSize)&&(yPos+yIncrease>=0)){
-                if((Game.pieces[yPos+yIncrease][xPos+xIncrease] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease].whitePiece != this.whitePiece)){
-                    ColourTiles(xPos+xIncrease, yPos+yIncrease);
+                if(movement){
+                    if((Game.pieces[yPos+yIncrease][xPos+xIncrease] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease].whitePiece != this.whitePiece)){
+                        ColourTiles(xPos+xIncrease, yPos+yIncrease);
+                    }
+                }else if(Game.pieces[yPos+yIncrease][xPos+xIncrease] != null){
+                    if((Game.pieces[yPos+yIncrease][xPos+xIncrease].whitePiece != this.whitePiece)&&(Game.pieces[yPos+yIncrease][xPos+xIncrease].pieceType == pieceType.knight)){
+                        pieceStoring(storeSpot+4, xPos+xIncrease, yPos+yIncrease, true);
+                    }else{
+                        pieceStoring(storeSpot+4, xPos+xIncrease, yPos+yIncrease, false);
+                    }
                 }
             } 
-        } catch (Exception e) {
-        }  
-        try {
-            if((Game.pieces[yPos+yIncrease][xPos+xIncrease*-1] == null)||(Game.pieces[yPos+yIncrease][xPos+xIncrease*-1].whitePiece != this.whitePiece)){
-                ColourTiles(xPos+xIncrease*-1, yPos+yIncrease);
-            }
-        } catch (Exception e) {
-        }
+            if((xPos-xIncrease<Game.boardSize)&&(xPos-xIncrease>=0)&&(yPos-yIncrease<Game.boardSize)&&(yPos-yIncrease>=0)){
+                if(movement){
+                    if((Game.pieces[yPos-yIncrease][xPos-xIncrease] == null)||(Game.pieces[yPos-yIncrease][xPos-xIncrease].whitePiece != this.whitePiece)){
+                        ColourTiles(xPos-xIncrease, yPos-yIncrease);
+                    }
+                }else if(Game.pieces[yPos-yIncrease][xPos-xIncrease] != null){
+                    if((Game.pieces[yPos-yIncrease][xPos-xIncrease].whitePiece != this.whitePiece)&&(Game.pieces[yPos-yIncrease][xPos-xIncrease].pieceType == pieceType.knight)){
+                        pieceStoring(storeSpot+4, xPos-xIncrease, yPos-yIncrease, true);
+                    }else{
+                        pieceStoring(storeSpot+4, xPos-xIncrease, yPos-yIncrease, false);
+                    }
+                }
+            } 
     }
-    private void TakeSideways(int yIncrease, int xIncrease){
-        try {
-            if((Game.pieces[this.y][this.x-xIncrease].whitePiece != this.whitePiece)&&
-                (Game.pieces[this.y][this.x-xIncrease].pawnEnPassant)){
-                ColourTiles(this.x-xIncrease, this.y+yIncrease);
-                takingEnPassant = true;
+    private void TakeSideways(int yIncrease, int xIncrease, boolean movement, int storeSpot){ 
+        if(movement){
+            try {
+                if((Game.pieces[this.y][this.x-xIncrease].whitePiece != this.whitePiece)&&
+                    (Game.pieces[this.y][this.x-xIncrease].pawnEnPassant)){
+                    ColourTiles(this.x-xIncrease, this.y+yIncrease);
+                    takingEnPassant = true;
+                }
+            } catch (Exception e) {
             }
-        } catch (Exception e) {
+            try {
+                if((Game.pieces[this.y][this.x+xIncrease].whitePiece != this.whitePiece)&&
+                    (Game.pieces[this.y][this.x+xIncrease].pawnEnPassant)){
+                    ColourTiles(this.x+xIncrease, this.y+yIncrease);
+                    takingEnPassant = true;
+                }
+            } catch (Exception e) {
+            }
         }
         try {
-            if((Game.pieces[this.y][this.x+xIncrease].whitePiece != this.whitePiece)&&
-                (Game.pieces[this.y][this.x+xIncrease].pawnEnPassant)){
-                ColourTiles(this.x+xIncrease, this.y+yIncrease);
-                takingEnPassant = true;
+            if(movement){
+                if(Game.pieces[this.y+yIncrease][this.x-xIncrease].whitePiece != this.whitePiece){
+                    ColourTiles(this.x-xIncrease, this.y+yIncrease);
+                }
+            }else if((Game.pieces[Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y+yIncrease][Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x-xIncrease].pieceType == pieceType.pawn)&&
+            (Game.pieces[Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y+yIncrease][Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x-xIncrease].whitePiece != this.whitePiece)){
+                pieceStoring(storeSpot, Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x-xIncrease,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y +yIncrease,true);
             }
-        } catch (Exception e) {
-        }
-        try {
-            if(Game.pieces[this.y+yIncrease][this.x-xIncrease].whitePiece != this.whitePiece){
-                ColourTiles(this.x-xIncrease, this.y+yIncrease);
-            }
-        } catch (Exception e) {
+        } catch (Exception e){
         }
         try{
-            if((Game.pieces[this.y+yIncrease][this.x+xIncrease].whitePiece != this.whitePiece)||
-            ((Game.pieces[this.y][this.x+xIncrease].whitePiece != this.whitePiece)&&
-            (Game.pieces[this.y][this.x+xIncrease].pawnEnPassant))){
-                ColourTiles(this.x+xIncrease, this.y+yIncrease);
+            if(movement){
+                if(Game.pieces[this.y+yIncrease][this.x+xIncrease].whitePiece != this.whitePiece){
+                    ColourTiles(this.x+xIncrease, this.y+yIncrease);
+                }
+            }else if((Game.pieces[Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y+yIncrease][Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x+xIncrease].pieceType == pieceType.pawn)&&
+            (Game.pieces[Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y+yIncrease][Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x+xIncrease].whitePiece != this.whitePiece)){
+                pieceStoring(storeSpot, Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x+xIncrease,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y +yIncrease,true);
             }
         } catch (Exception e) {
         }
@@ -241,115 +288,77 @@ public class Pieces {
         }
     }
     private void ColourTiles(int xOfTile, int yOfTile){
-        Game.tiles[yOfTile][xOfTile].colour = Color.red;
+        Game.tiles[yOfTile][xOfTile].colour = Game.moveColour;
         Mouse_Input.firstClick = false;
     }
-    private void checkChecker(piecEnum checkedPiece, int checkX, int checkY, int doing, int increase){
-        switch (checkedPiece) {
-            case king:
-                if(checkY + increase<Game.boardSize){
-                        checkingLines(checkX, checkY + increase, doing, increase == 2 ? 'y':'l');
-                }
-                if(checkY - increase>=0){
-                        checkingLines(checkX, checkY - increase, doing+1, increase == 2 ? 'y':'l');
-                }
-                if(checkX + increase<Game.boardSize){
-                        checkingLines(checkX + increase, checkY, doing+2, increase == 2 ? 'x':'l');
-                }
-                if(checkX - increase>=0){
-                        checkingLines(checkX - increase, checkY, doing+3, increase == 2 ? 'x':'l');
-                }
-                if((checkX - increase>=0)&&(checkY - increase>=0)){
-                    checkingLines(checkX - increase, checkY - increase, doing+4, increase == 1 ? 'p':'d');
-                }
-                if((checkX + increase<Game.boardSize)&&(checkY - increase>=0)){
-                    checkingLines(checkX + increase, checkY - increase, doing+5, increase == 1 ? 'p':'d');
-                }
-                if((checkX - increase>=0)&&(checkY + increase<Game.boardSize)){
-                    checkingLines(checkX - increase, checkY + increase, doing+6, increase == 1 ? 'p':'d');
-                }
-                if((checkX + increase<Game.boardSize)&&(checkY + increase<Game.boardSize)){
-                    checkingLines(checkX + increase, checkY + increase, doing+7, increase == 1 ? 'p':'d');
-                }
-                if((checkY + increase<Game.boardSize)||(checkY - increase>=0)||(checkX + increase<Game.boardSize)||
-                    (checkX - increase>=0)||((checkX - increase>=0)&&(checkY - increase>=0))||((checkX + increase<Game.boardSize)&&(checkY - increase>=0))
-                    ||((checkX - increase>=0)&&(checkY + increase<Game.boardSize))||((checkX + increase>=0)&&(checkY + increase<Game.boardSize))){
-                    checkChecker(piecEnum.king, checkX,checkY,doing,increase+1);
-                }
-            break;
-        }
-    }
-
-    private void checkingLines(int checkX, int checkY, int storingNumber, char checkPiece){
-        if(checkPiece == 'y'){
-            try {
-                if((Game.pieces[checkY][checkX-1].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX-1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+8, checkX-1, checkY, true);
-                }
-            } catch (Exception e) {
-            }
-            try {
-                if((Game.pieces[checkY][checkX+1].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX+1].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+9, checkX+1, checkY, true);
-                }
-            } catch (Exception e) {
-            }
-            checkingLines(checkX,checkY,storingNumber,'l');
-        }else if(checkPiece == 'x'){
-            try {
-                if((Game.pieces[checkY-1][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY-1][checkX].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+4, checkX, checkY-1, true);
-                }
-            } catch (Exception e) {
-            }
-            try {
-                if((Game.pieces[checkY+1][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY+1][checkX].pieceType == piecEnum.knight)){ 
-                    pieceStoring(storingNumber+5, checkX, checkY+1, true);
-                }
-            } catch (Exception e) {
-            }
-            checkingLines(checkX,checkY,storingNumber,'l');
-        }else if(checkPiece == 'l'){
-            if(Game.pieces[checkY][checkX] != null){
-                if(Game.pieces[checkY][checkX].whitePiece == this.whitePiece){
-                    pieceStoring(storingNumber, checkX, checkY, false);
-                }else if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY][checkX].pieceType == piecEnum.rook)||(Game.pieces[checkY][checkX].pieceType == piecEnum.queen))){ 
-                    pieceStoring(storingNumber, checkX, checkY, true);
-                }
-            }
-        }else if(checkPiece == 'd'){
-            if(Game.pieces[checkY][checkX] != null){
-                if(Game.pieces[checkY][checkX].whitePiece == this.whitePiece){
-                    pieceStoring(storingNumber, checkX, checkY, false);
-                }else if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&((Game.pieces[checkY][checkX].pieceType == piecEnum.bishop)||(Game.pieces[checkY][checkX].pieceType == piecEnum.queen))){ 
-                    pieceStoring(storingNumber, checkX, checkY, true);
-                }
-            }
-        }else if(checkPiece == 'p'){
-            try {
-                if((Game.pieces[checkY][checkX].whitePiece != this.whitePiece)&&(Game.pieces[checkY][checkX].pieceType == piecEnum.pawn)){ 
-                    pieceStoring(storingNumber, checkX, checkY, true);
-                }
-            } catch (Exception e) {
-            }
-            checkingLines(checkX,checkY,storingNumber,'d');
-        }
-    }
-
+    
     private void pieceStoring(int storeSpot, int storeX, int storeY, boolean enemyPiece){
         if(enemyPiece){
             if(pinnedPieces[storeSpot][0] == null){
-                pinnedPieces[storeSpot][0] = piecEnum.enemyPiece;
+                pinnedPieces[storeSpot][0] = new Pieces(storeX, storeY, piecEnum.enemyPiece, enemyPiece);
+                kingChecked++;
             }else if(pinnedPieces[storeSpot][1] == null){
-                pinnedPieces[storeSpot][1] = piecEnum.enemyPiece;
+                pinnedPieces[storeSpot][1] = new Pieces(storeX, storeY, piecEnum.enemyPiece, enemyPiece);
             }
-            System.out.println(pinnedPieces[storeSpot][0]+","+pinnedPieces[storeSpot][1]);
         }else{
             if(pinnedPieces[storeSpot][0] == null){
-                pinnedPieces[storeSpot][0] = Game.pieces[storeY][storeX].pieceType;
+                pinnedPieces[storeSpot][0] = new Pieces(storeX, storeY, Game.pieces[storeY][storeX].pieceType, !enemyPiece);
             }else if(pinnedPieces[storeSpot][1] == null){
-                pinnedPieces[storeSpot][1] = Game.pieces[storeY][storeX].pieceType;
+                pinnedPieces[storeSpot][1] = new Pieces(storeX, storeY, Game.pieces[storeY][storeX].pieceType, !enemyPiece);
+            }
+        }
+        System.out.println("pinnedPieces["+storeSpot+"][0],    "+pinnedPieces[storeSpot][0].pieceType+":"+pinnedPieces[storeSpot][0].x+","+pinnedPieces[storeSpot][0].y+"    kingCheck: "+kingChecked);
+    }
+    private void ResolvingCheck(){
+        if(kingChecked == 1){
+            switch (pieceType) {
+                case rook:
+                System.out.print("rook");
+                    if((pinnedPieces[0][0] != null)&&(pinnedPieces[0][0].pieceType == piecEnum.enemyPiece)){
+                        if((this.x > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x)&&(this.x <= pinnedPieces[0][0].x)){
+                            checkVertical(0);
+                        }
+                    }else if((pinnedPieces[1][0] != null)&&(pinnedPieces[1][0].pieceType == piecEnum.enemyPiece)){
+                        if((this.x < Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x)&&(this.x >= pinnedPieces[1][0].x)){
+                            checkVertical(1);
+                        }
+                    }else if((pinnedPieces[2][0] != null)&&(pinnedPieces[2][0].pieceType == piecEnum.enemyPiece)){
+                        if((this.y > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y)&&(this.y <= pinnedPieces[2][0].y)){
+                            checkHorizontal(2);
+                        }
+                    }else if((pinnedPieces[3][0] != null)&&(pinnedPieces[3][0].pieceType == piecEnum.enemyPiece)){
+                        if((this.y < Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y)&&(this.y >= pinnedPieces[3][0].y)){
+                            checkHorizontal(3);
+                        }
+                    }
+                break;
+                default:
+                    
+                break;
+            }
+        }else{
+            normalMoves();
+        }
+    }
+    private void checkVertical(int leftOrRight){
+        for(int upOrDown = this.y; upOrDown != pinnedPieces[leftOrRight][0].y;){
+            upOrDown = upOrDown + (this.y > pinnedPieces[leftOrRight][0].y ? -1:+1);
+            if(upOrDown == pinnedPieces[leftOrRight][0].y ){
+                ColourTiles(this.x,pinnedPieces[leftOrRight][0].y);
+            }else if(Game.pieces[upOrDown][this.x] != null){
+                upOrDown = pinnedPieces[leftOrRight][0].y;
+            }
+        }
+    }
+    private void checkHorizontal(int upOrDown){
+        for(int leftOrRight = this.x; leftOrRight != pinnedPieces[upOrDown][0].x;){
+            leftOrRight = leftOrRight + (this.x > pinnedPieces[upOrDown][0].x ? -1:+1);
+            if(leftOrRight == pinnedPieces[upOrDown][0].x ){
+                ColourTiles(pinnedPieces[upOrDown][0].x,this.y);
+            }else if(Game.pieces[this.y][upOrDown] != null){
+                leftOrRight = pinnedPieces[upOrDown][0].x;
             }
         }
     }
 }
+

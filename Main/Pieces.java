@@ -112,6 +112,7 @@ public class Pieces {
         }
         kingChecked = 0;
         System.out.println("start");
+        for(int i = 0; i < 2; i++){
         Pathing(1,0,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,0);
         Pathing(-1,0,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,1);
         Pathing(0,1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,2);
@@ -125,7 +126,7 @@ public class Pieces {
         Jumping(1,-2,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,10);
         Jumping(2,-1,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x,Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y,false,11);
         TakeSideways(this.whitePiece?-1:1,1, false, 16);     
-        
+        }
         ResolvingCheck();
     }
     private void normalMoves(){
@@ -188,10 +189,16 @@ public class Pieces {
                 }else if(Game.pieces[yPos+yIncrement][xPos+xIncrement] != null){
                     if(Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece == this.whitePiece){
                         pieceStoring(storeSpot, xPos+xIncrement, yPos+yIncrement,false);
+                        if(pinnedPieces[storeSpot][1]== null){
+                            Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement, movement, storeSpot);
+                        }
                     }else if((Game.pieces[yPos+yIncrement][xPos+xIncrement].whitePiece != this.whitePiece)&&
                     (((xIncrement == 0)||(yIncrement == 0))&&((Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.rook)||(Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.queen)))||
                     ((((xIncrement == 1)||(xIncrement == -1))&&((yIncrement == 1)||(yIncrement == -1)))&&((Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.bishop)||(Game.pieces[yPos+yIncrement][xPos+xIncrement].pieceType == pieceType.queen)))){
                         pieceStoring(storeSpot, xPos+xIncrement, yPos+yIncrement,true);
+                        if(pinnedPieces[storeSpot][1]== null){
+                            Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement, movement, storeSpot);
+                        }
                     }
                 }else{
                     Pathing(xIncrement, yIncrement,xPos+xIncrement, yPos+yIncrement, movement, storeSpot);
@@ -313,22 +320,36 @@ public class Pieces {
         if(kingChecked == 1){
             switch (pieceType) {
                 case rook:
-                System.out.print("rook");
                     if((pinnedPieces[0][0] != null)&&(pinnedPieces[0][0].pieceType == piecEnum.enemyPiece)){
                         if((this.x > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x)&&(this.x <= pinnedPieces[0][0].x)){
-                            checkVertical(0);
+                            checkVertical(pinnedPieces[0][0].y);
+                        }else if((pinnedPieces[0][1] != null)&&(pinnedPieces[0][1].pieceType == piecEnum.rook)){
+                            ColourTiles(pinnedPieces[0][0].x,pinnedPieces[0][0].y);
                         }
                     }else if((pinnedPieces[1][0] != null)&&(pinnedPieces[1][0].pieceType == piecEnum.enemyPiece)){
                         if((this.x < Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x)&&(this.x >= pinnedPieces[1][0].x)){
-                            checkVertical(1);
+                            checkVertical(pinnedPieces[1][0].y);
+                        }else if((pinnedPieces[1][1] != null)&&(pinnedPieces[1][1].pieceType == piecEnum.rook)){
+                            ColourTiles(pinnedPieces[1][0].x,pinnedPieces[0][0].y);
                         }
                     }else if((pinnedPieces[2][0] != null)&&(pinnedPieces[2][0].pieceType == piecEnum.enemyPiece)){
                         if((this.y > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y)&&(this.y <= pinnedPieces[2][0].y)){
-                            checkHorizontal(2);
+                            checkHorizontal(pinnedPieces[2][0].x);
+                        }else if((pinnedPieces[2][1] != null)&&(pinnedPieces[2][1].pieceType == piecEnum.rook)){
+                            ColourTiles(pinnedPieces[2][0].x,pinnedPieces[2][0].y);
                         }
                     }else if((pinnedPieces[3][0] != null)&&(pinnedPieces[3][0].pieceType == piecEnum.enemyPiece)){
                         if((this.y < Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y)&&(this.y >= pinnedPieces[3][0].y)){
-                            checkHorizontal(3);
+                            checkHorizontal(pinnedPieces[3][0].x);
+                        }else if((pinnedPieces[3][1] != null)&&(pinnedPieces[3][1].pieceType == piecEnum.rook)){
+                            ColourTiles(pinnedPieces[3][0].x,pinnedPieces[3][0].y);
+                        }
+                    }else if((pinnedPieces[4][0] != null)&&(pinnedPieces[4][0].pieceType == piecEnum.enemyPiece)){
+                        if((this.x > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].x)&&(this.x <= pinnedPieces[4][0].x)){
+                            checkVertical(pinnedPieces[4][0].y-(Math.max(pinnedPieces[4][0].x,this.x)-Math.min(pinnedPieces[4][0].x,this.x)));
+                        }
+                        if((this.y > Game.pieces[(int)(Math.round((Game.pieceXY.get(this.whitePiece?"wk":"bk")-(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk")))*10))][(int)Math.floor(Game.pieceXY.get(this.whitePiece?"wk":"bk"))].y)&&(this.y <= pinnedPieces[4][0].y)){
+                            checkHorizontal(pinnedPieces[4][0].x-(Math.max(pinnedPieces[4][0].y,this.y)-Math.min(pinnedPieces[4][0].y,this.y)));
                         }
                     }
                 break;
@@ -340,23 +361,23 @@ public class Pieces {
             normalMoves();
         }
     }
-    private void checkVertical(int leftOrRight){
-        for(int upOrDown = this.y; upOrDown != pinnedPieces[leftOrRight][0].y;){
-            upOrDown = upOrDown + (this.y > pinnedPieces[leftOrRight][0].y ? -1:+1);
-            if(upOrDown == pinnedPieces[leftOrRight][0].y ){
-                ColourTiles(this.x,pinnedPieces[leftOrRight][0].y);
+    private void checkVertical(int enemyPosition){
+        for(int upOrDown = this.y; upOrDown != enemyPosition;){
+            upOrDown = upOrDown + (this.y > enemyPosition ? -1:+1);
+            if(upOrDown == enemyPosition ){
+                ColourTiles(this.x,enemyPosition);
             }else if(Game.pieces[upOrDown][this.x] != null){
-                upOrDown = pinnedPieces[leftOrRight][0].y;
+                upOrDown = enemyPosition;
             }
         }
     }
-    private void checkHorizontal(int upOrDown){
-        for(int leftOrRight = this.x; leftOrRight != pinnedPieces[upOrDown][0].x;){
-            leftOrRight = leftOrRight + (this.x > pinnedPieces[upOrDown][0].x ? -1:+1);
-            if(leftOrRight == pinnedPieces[upOrDown][0].x ){
-                ColourTiles(pinnedPieces[upOrDown][0].x,this.y);
-            }else if(Game.pieces[this.y][upOrDown] != null){
-                leftOrRight = pinnedPieces[upOrDown][0].x;
+    private void checkHorizontal(int enemyPosition){
+        for(int leftOrRight = this.x; leftOrRight != enemyPosition;){
+            leftOrRight = leftOrRight + (this.x > enemyPosition ? -1:+1);
+            if(leftOrRight == enemyPosition ){
+                ColourTiles(enemyPosition, this.y);
+            }else if(Game.pieces[this.y][leftOrRight] != null){
+                leftOrRight = enemyPosition;
             }
         }
     }

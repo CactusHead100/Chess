@@ -18,6 +18,7 @@ public class Game extends JPanel{
     public static Board tiles[][] = new Board[boardSize][boardSize];
     public static Pieces pieces[][] = new Pieces[boardSize][boardSize];
     private int[] movingPiece = new int[2];
+    boolean whitesMove = true;
     public static Dictionary<String, Double> pieceXY = new Hashtable<>();
     public Game(){
         addMouseListener(mouse_Input);
@@ -39,7 +40,17 @@ public class Game extends JPanel{
         }
     }
 
-    private void CreatePieces() {
+    public void clearBoard(){
+        int boardY;
+        for(int boardX = 0; boardX < boardSize; boardX++){
+            for(boardY = 0; boardY < boardSize; boardY++){
+                pieces[boardY][boardX] = null;
+            }
+            boardY = 0;
+        }
+    }
+
+    public void CreatePieces() {
         for(int y = 0; y < boardSize; y++){
             for(int x = 0; x < boardSize; x++){
                 switch (y) {
@@ -92,14 +103,15 @@ public class Game extends JPanel{
                 break;
             }
         }
-
     public void MouseClicked(int mouseXpos,int mouseYpos){
         mouseX = mouseXpos/tileSize;
         mouseY = mouseYpos/tileSize;
         movingPiece[0] = mouseX;
         movingPiece[1] = mouseY;
         try {
-            pieces[mouseY][mouseX].GetAvailableMoves();
+            if(whitesMove == pieces[mouseY][mouseX].whitePiece){
+                pieces[mouseY][mouseX].GetAvailableMoves();
+            }
         } catch (Exception e) {
         }
         repaint();
@@ -110,6 +122,7 @@ public class Game extends JPanel{
         mouseY = mouseYpos/tileSize;
         if(tiles[mouseY][mouseX].colour == moveColour){
             pieces[movingPiece[1]][movingPiece[0]].ApplyGamerules(mouseX, mouseY);
+            whitesMove = !whitesMove;
         }
         mouse_Input.firstClick = true;
         CreateTiles();

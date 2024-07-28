@@ -24,10 +24,17 @@ public class Mouse_Input implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(firstClick){
-            game.MouseClicked(e.getX(),e.getY());
-        }else{
-            game.MouseReleased(e.getX(),e.getY());
+        if(e.getButton() == 1){
+            if(firstClick){
+                game.MouseClicked(e.getX(),e.getY());
+            }else{
+                game.MouseReleased(e.getX(),e.getY());
+            }
+        }else if(e.getButton() == 2){
+            game.clearBoard();
+            game.CreatePieces();
+            game.whitesMove = true;
+            game.repaint();
         }
 
     }

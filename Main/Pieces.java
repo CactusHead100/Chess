@@ -264,9 +264,9 @@ public class Pieces {
                     }
                 }else if(Game.pieces[yPos-yIncrease][xPos-xIncrease] != null){
                     if((Game.pieces[yPos-yIncrease][xPos-xIncrease].whitePiece != this.whitePiece)&&(Game.pieces[yPos-yIncrease][xPos-xIncrease].pieceType == pieceType.knight)){
-                        pieceStoring(storeSpot+4, xPos-xIncrease, yPos-yIncrease, true);
+                        pieceStoring(storeSpot+5, xPos-xIncrease, yPos-yIncrease, true);
                     }else{
-                        pieceStoring(storeSpot+4, xPos-xIncrease, yPos-yIncrease, false);
+                        pieceStoring(storeSpot+5, xPos-xIncrease, yPos-yIncrease, false);
                     }
                 }
             } 
@@ -382,7 +382,7 @@ public class Pieces {
             }else if(pinnedPieces[storeSpot][1] == null){
                 pinnedPieces[storeSpot][1] = new Pieces(storeX, storeY, Game.pieces[storeY][storeX].pieceType, !enemyPiece);//gets the piecetype by finding its type on the gameboard
             }
-        }        
+        }  
     }
     /**
      * intakes and returns nothing
@@ -1136,7 +1136,6 @@ public class Pieces {
         jumping(1,-2,checkX,checkY,false,10);
         jumping(2,-1,checkX,checkY,false,11);
         takeSideways(this.whitePiece?-1:1,1, checkX,checkY,false, 16);
-
         /**
          * checks if there are any checks for the square and if there are it returns false meaning that the king cant move there
          */
